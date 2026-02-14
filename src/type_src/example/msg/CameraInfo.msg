@@ -1,0 +1,3 @@
+_enable_tracing_
+string camera_name
+int32 width

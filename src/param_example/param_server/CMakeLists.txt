@@ -1,0 +1,2 @@
+add_example(param_server src/param_server.cc)
+target_link_libraries(param_server PRIVATE param_example_proto)

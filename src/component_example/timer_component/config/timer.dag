@@ -1,0 +1,10 @@
+module_config {
+    module_library : "lib/libtimer_component.so"
+    timer_components {
+        component_class_name : "TimerComponentExample"
+        config {
+            inner_node_name : "timer_component_example"
+            interval : 100
+        }
+    }
+}

@@ -1,0 +1,40 @@
+<segar>
+  <environment>
+    <RTI_ENV_WORKROOT>/home/simon/segar/Segar2/build_x86/output</RTI_ENV_WORKROOT>
+    <SEGAR_PATH>/home/simon/segar/Segar2/build_x86/output/share</SEGAR_PATH>
+    <RTI_DAG_PATH>/home/simon/segar/Segar2/build_x86/output/integration_test</RTI_DAG_PATH>
+    <RTI_LIB_PATH>/home/simon/segar/Segar2/build_x86/output/integration_test</RTI_LIB_PATH>
+    <RTI_PARAM_PATH>/home/simon/segar/Segar2/build_x86/output/integration_test</RTI_PARAM_PATH>
+    <RTI_CONF_PATH>/home/simon/segar/Segar2/build_x86/output/integration_test</RTI_CONF_PATH>
+  </environment>
+  <module>
+    <name>itest_tracing_node</name>
+    <dag_conf>dag/tracing_node.dag</dag_conf>
+    <process_name>itest_tracing_node</process_name>
+  </module>
+  <module>
+    <name>itest_node_a</name>
+    <dag_conf>dag/node_a.dag</dag_conf>
+    <process_name>itest_node_a</process_name>
+  </module>
+  <module>
+    <name>itest_param_timer</name>
+    <dag_conf>dag/param_timer.dag</dag_conf>
+    <process_name>itest_param_timer</process_name>
+  </module>
+  <module>
+    <name>itest_sensor_1</name>
+    <type>binary</type>
+    <process_name>/home/simon/segar/Segar2/build_x86/output/integration_test/bin/sensor_node /home/simon/segar/Segar2/build_x86/output/integration_test/params/sensor_config.json 1</process_name>
+  </module>
+  <module>
+    <name>itest_sensor_2</name>
+    <type>binary</type>
+    <process_name>/home/simon/segar/Segar2/build_x86/output/integration_test/bin/sensor_node /home/simon/segar/Segar2/build_x86/output/integration_test/params/sensor_config.json 2</process_name>
+  </module>
+  <module>
+    <name>itest_sensor_3</name>
+    <type>binary</type>
+    <process_name>/home/simon/segar/Segar2/build_x86/output/integration_test/bin/sensor_node /home/simon/segar/Segar2/build_x86/output/integration_test/params/sensor_config.json 3</process_name>
+  </module>
+</segar>

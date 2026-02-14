@@ -1,0 +1,51 @@
+###########################################################################
+# Flags from sensor_manager
+
+--flagfile=/modules/common/data/global_flagfile.txt
+# config file work root
+# type: string
+# default:
+--work_root=/apollo/modules/perception
+
+# SensorManager config file
+# type: string
+# default:
+--obs_sensor_meta_file=sensor_meta.pb.txt
+
+# The intrinsics/extrinsics dir
+# type: string
+# default:
+--obs_sensor_intrinsic_path=/apollo/modules/perception/data/params
+
+###########################################################################
+# Flags from common_flags
+
+# enable hdmap input for roi filter.
+# type: bool
+# default: true
+--obs_enable_hdmap_input=true
+
+# whether to send message for visualization.
+# type: bool
+# default: false
+--obs_enable_visualization=false
+
+# where to save screenshots of visualization
+# type: string
+# default: ./
+--obs_screen_output_dir=./
+
+# whether switch to benchmark output mode
+# type: bool
+# default: false
+--obs_benchmark_mode=false
+
+# whether save fusion supplement data
+# type: bool
+# default: false
+--obs_save_fusion_supplement=true
+
+# Enable saving result images for visualization
+# type: bool
+# default: false
+--start_visualizer=false

@@ -1,0 +1,9 @@
+param_server:
+  segar__parameters:
+    p1_int: 1
+    p2_string: test
+    p3_pb:
+      __proto_type__: param.example.Header
+      module_name: param_server
+      timestamp_sec: 1234.56
+      sequence_num: 1

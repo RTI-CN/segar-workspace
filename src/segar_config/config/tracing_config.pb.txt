@@ -1,0 +1,10 @@
+enable_tracing: false
+upload_to_cloud: false
+save_to_local: true
+local_files_is_text: true
+period_seconds_of_report_rate: 5
+min_msg_delay_milli_secs_to_report: 100
+use_tick_count_us: false
+max_trace_data_folder_size: 1024
+trace_data_path: "~/trace_data"
+auto_clear_old_trace_data: false

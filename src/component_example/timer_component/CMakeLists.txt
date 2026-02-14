@@ -1,0 +1,1 @@
+add_example_lib(timer_component src/timer_component_example.cc)

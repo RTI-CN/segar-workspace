@@ -1,0 +1,19 @@
+# Define all coms in DAG streaming.
+    module_config {
+    module_library : "lib/libcommon_component.so"
+    components {
+        component_class_name : "CommonComponentExample"
+        config {
+            inner_node_name: "common_component_example"
+            params_file_path: "config/params.yaml"
+            readers {
+                topic: "/topic/image"
+                pending_queue_size: 5
+            }
+            readers {
+                topic: "/topic/chatter"
+                pending_queue_size: 5
+            }
+        }
+      }
+    }

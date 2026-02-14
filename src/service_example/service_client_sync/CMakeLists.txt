@@ -1,0 +1,1 @@
+add_example(service_client_sync src/service_client_sync.cc)

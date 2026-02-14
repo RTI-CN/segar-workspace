@@ -1,0 +1,1 @@
+add_example_lib(common_component src/common_component_example.cc)

@@ -1,0 +1,122 @@
+SEGAR PROPRIETARY LICENSE (LicenseRef-Segar-Proprietary)
+Copyright (c) 2022-2026 SEGAR (王士明). All rights reserved.
+SPDX-License-Identifier: LicenseRef-Segar-Proprietary
+
+IMPORTANT: This document provides a bilingual Chinese/English version. In case of any inconsistency,
+the Chinese version shall prevail.
+
+1. Purpose and Status
+SEGAR (also referred to as “Segar”) is a closed-source, proprietary and confidential software project. This license governs any access to,
+possession of, or use of SEGAR Source Code and/or Binary Packages, unless a separate Written Authorization (as defined below) expressly
+supersedes or supplements this license.
+
+ASSENT / ACCEPTANCE
+By accessing, possessing, installing, loading, running, copying, modifying, or otherwise using SEGAR (whether Source Code or Binary Packages),
+you acknowledge that you have read, understood, and agreed to be bound by all terms and restrictions of this license. If you do not agree to any term,
+you must immediately cease all use and delete all copies under your control.
+
+2. Licensor and Ownership
+Licensor: Wang Shiming (王士明) (“Licensor”).
+All intellectual property rights in SEGAR are owned by the Licensor, and the Licensor exclusively manages all external licensing and cooperation.
+The RTI team is an individual collaboration assisting in maintenance and extensions and is not affiliated with any company/organization; RTI team
+members are not licensors and have no authority to grant any external license.
+
+3. Definitions
+(1) “SEGAR / Segar” means all SEGAR source code, headers, libraries, binaries, build scripts, interface definitions, documentation, configurations,
+examples, and any modified or derivative versions thereof, and any related materials.
+(2) “Source Code” means any human-readable code and related materials, including but not limited to C/C++ sources, headers, scripts, IDL files,
+build files, etc.
+(3) “Binary Package” means any compiled library, executable, SDK package, or other object/binary distribution (including debug symbols if provided).
+(4) “Commercial” includes any direct or indirect business or commercial use, including but not limited to revenue-generating use, internal business use,
+customer-delivered use, production deployment, business-critical use, paid services involving SEGAR, or any use supporting a commercial product/service.
+(5) “Written Authorization” means an explicit written permission granted by the Licensor, including but not limited to a signed agreement or explicit email approval.
+(6) “RTI Member / Contributor” means any RTI team member or other contributor who has contributed code/scripts/docs to the SEGAR codebase (including submissions,
+merges, or accepted patches).
+(7) “Core Platform Scope” means generic capabilities related to SEGAR as a platform/middleware (referenced to industry-standard middleware/platform capability boundaries;
+ROS 2 platform/middleware-layer capabilities may be used as a reference), including but not limited to communications, discovery, serialization/IDL, parameters, services/actions, node/component model, toolchain,
+build/deployment scripts, diagnostics/monitoring, performance and stability improvements, and compatibility adaptations. Core Platform Scope excludes any company/customer-
+specific application/business logic, proprietary algorithms, private data, or undisclosed trade secrets.
+
+4. No License by Default
+No license or rights, express or implied, are granted by this notice or by possession of any part of SEGAR (Source Code or Binary Packages).
+Any permission must be obtained only through Written Authorization granted by the Licensor.
+
+5. Prohibited Unauthorized Use
+Unless you have Written Authorization from the Licensor, you must not directly or indirectly:
+(1) access, use, copy, modify, merge, compile, distribute, publish, disclose, or otherwise provide SEGAR Source Code to any third party;
+(2) use SEGAR Source Code or Binary Packages for any Commercial purpose;
+(3) distribute, sublicense, sell, rent, lend, assign, transfer, or otherwise provide SEGAR (Source Code or Binary Packages) to any third party;
+(4) to the maximum extent permitted by law, reverse engineer, decompile, disassemble, or otherwise attempt to derive source code or underlying implementation ideas
+from any Binary Package;
+(5) remove or alter copyright notices, SPDX identifiers/references, proprietary markings, or confidentiality markings.
+
+6. Free Academic/Learning/Evaluation Binary Packages
+The Licensor may make certain SEGAR Binary Packages available for academic/learning/evaluation purposes (“Free Packages”). With respect to Free Packages:
+(1) Free Packages may be used only for academic/learning/evaluation purposes;
+(2) Free Packages must not be used for any Commercial purpose without Written Authorization;
+(3) Free Packages must not be redistributed, sublicensed, or transferred to any third party without Written Authorization;
+(4) the reverse engineering restriction in Section 5(4) also applies to Free Packages.
+
+7. Unauthorized Acquisition: Required Remediation
+If you obtain or access SEGAR (Source Code or Binary Packages) without Written Authorization, you must immediately:
+(1) cease all use;
+(2) stop all distribution, disclosure, and sublicensing;
+(3) delete all copies within your possession or control (including backups, mirrors, CI artifacts, and copies on storage media);
+(4) make reasonable efforts to recall distributed copies or cause deletion of such copies;
+(5) promptly notify the Licensor and cooperate in remediation and handling;
+(6) provide a written certification/confirmation of compliance with the above remediation obligations upon the Licensor’s request.
+
+The above remediation obligations do not limit the Licensor’s right to pursue any legal remedies and claim damages (including reasonable costs incurred to stop the infringement).
+
+Any purported authorization, license, or permission granted by an unauthorized party is void ab initio.
+
+8. Contribution Compliance (RTI Team and Contributors)
+RTI Members and any contributors must comply with applicable local laws. Contributions to SEGAR must be limited to generic code/scripts/docs within the
+Core Platform Scope. Contributors must not submit:
+(1) any application/business-specific code unrelated to general platform capabilities;
+(2) any proprietary or confidential information of any employer/customer, trade secrets, undisclosed data, or restricted materials;
+(3) any unauthorized third-party intellectual property (including employer-restricted code/materials, or customer proprietary/patent-sensitive implementation details).
+
+If any such content is inadvertently contributed, it must be promptly reported to the Licensor and removed, and the contributor shall cooperate in remediation.
+
+9. Additional Conditions for Commercial Use (RTI Contributions / Non-Compete Arrangement)
+For any Commercial authorization, the commercial user acknowledges and agrees that if it employs or manages RTI Members/Contributors, then—provided that:
+(a) no confidential information, trade secrets, or third-party IP of the commercial user is disclosed; and
+(b) the contributions are limited to the Core Platform Scope,
+such personnel may contribute generic platform patches/scripts/fixes/improvements to SEGAR as a permitted compliant activity.
+
+The commercial user shall not, while continuing its Commercial use of SEGAR, treat such compliant contributions within the Core Platform Scope as a non-compete violation solely on that basis.
+
+If the commercial user cannot accept the above arrangement, or demands that such personnel stop the above compliant contributions, the commercial user shall first consult
+with the Licensor in writing to define a handling plan. If no agreement is reached, the Licensor may terminate the Commercial authorization for that commercial user;
+where the applicable Written Authorization document contains specific termination/termination procedures, such document shall prevail.
+
+10. Confidentiality
+SEGAR Source Code and any non-public related materials are confidential. Without Written Authorization, you must not disclose them to any third party.
+
+11. Disclaimer
+To the maximum extent permitted by law, SEGAR and Free Packages are provided “AS IS” without warranties of any kind, express or implied, including but not limited to
+merchantability, fitness for a particular purpose, non-infringement, accuracy, or error-free operation.
+
+12. Strong Limitation of Liability
+To the maximum extent permitted by law:
+(1) Free Packages: the Licensor shall have no liability for any loss or damages arising from or related to Free Packages;
+(2) exclusion of damages: the Licensor shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, revenues,
+business opportunities, goodwill, data, or business interruption, regardless of the theory of liability (contract, tort including negligence, strict liability, or otherwise),
+even if advised of the possibility of such damages;
+(3) liability cap: if the above limitations are held unenforceable, the Licensor’s aggregate liability related to SEGAR shall not exceed:
+(a) the actual amount paid to the Licensor under the specific Written Authorization giving rise to the claim; or
+(b) if no fees were paid, zero (0).
+
+Nothing in this section excludes or limits any liability that cannot be excluded or limited under applicable law.
+
+13. Enforcement and Remedies
+Any unauthorized use, distribution, disclosure, or commercialization may cause irreparable harm. The Licensor may seek all available legal and equitable remedies,
+including injunctive relief and damages.
+
+14. Governing Law and Dispute Resolution (PRC)
+This license is governed by the laws of the People’s Republic of China (excluding conflict of law rules).
+Any dispute arising out of or relating to this license or SEGAR shall be submitted to the competent People’s Court with jurisdiction at the Licensor’s domicile.
+
+15. Contact
+Email: mansm@163.com

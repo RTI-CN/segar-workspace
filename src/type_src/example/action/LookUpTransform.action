@@ -1,0 +1,13 @@
+#Simple API
+_enable_tracing_
+string target_frame
+string source_frame
+
+#Whether or not to use the advanced API
+bool advanced
+
+---
+string transform
+int32 error
+---
+int32 current

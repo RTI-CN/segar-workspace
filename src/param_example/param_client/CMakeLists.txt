@@ -1,0 +1,2 @@
+add_example(param_client src/param_client.cc)
+target_link_libraries(param_client PRIVATE param_example_proto)

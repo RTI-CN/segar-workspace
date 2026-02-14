@@ -1,0 +1,2 @@
+add_subdirectory(common_component)
+add_subdirectory(timer_component)

@@ -1,0 +1,1 @@
+add_example(service_client_async src/service_client_async.cc)
