@@ -1,5 +1,7 @@
 # segar-workspace
 
+![Project Logo](docs/segar_logo.jpg)
+
 ## Overview
 
 **This repository is the user workspace for the SEGAR (Segar) operating system. It provides a practical environment to develop, extend, build, and deploy robot applications.**
