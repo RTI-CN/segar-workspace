@@ -1,0 +1,3 @@
+add_subdirectory(service_server)
+add_subdirectory(service_client_sync)
+add_subdirectory(service_client_async)

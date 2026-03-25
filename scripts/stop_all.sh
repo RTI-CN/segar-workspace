@@ -19,7 +19,7 @@ PROCESS_NAMES=(
   action_client_async
   tasker
 )
-PROCESS_PATTERNS=( "timer.dag" "common.dag" )
+PROCESS_PATTERNS=( "timer.dag" "common.dag" "sync.dag" )
 
 echo "Stopping processes by name/pattern..."
 all_pids=()

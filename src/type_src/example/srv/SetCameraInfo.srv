@@ -5,7 +5,6 @@
 # camera is currently outputting on its camera_info topic, and the camera
 # will assume that the region of the imager that is being referred to is
 # the region that the camera is currently capturing.
-_enable_tracing_
 CameraInfo camera_info # The camera_info to store
 ---
 bool success                             # True if the call succeeded

@@ -8,8 +8,8 @@ set -e
 # Validate arguments
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <BUILD_DIR_NAME> <TOOLCHAIN_FILE> [PLATFORM_NAME] [BUILD_TYPE]"
-    echo "Example: $0 build_x86 cmake/x86_64-linux-gcc_9.5.0.toolchain.cmake x86_64 Release"
-    echo "Example: $0 build_orin cmake/aarch64-orin-gcc_13.2.0.toolchain.cmake orin Debug"
+    echo "Example: $0 build_x86 cmake/x86_64-native.toolchain.cmake x86_64 Release"
+    echo "Example: $0 build_orin cmake/aarch64-orin-gcc_11.4.0.toolchain.cmake orin Debug"
     exit 1
 fi
 

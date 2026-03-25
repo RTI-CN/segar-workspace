@@ -1,9 +1,6 @@
 /******************************************************************************
- * Copyright (c) 2022-2026 SEGAR. All Rights Reserved.
- * SPDX-License-Identifier: LicenseRef-Segar-Proprietary
- *
- * PROPRIETARY AND CONFIDENTIAL. See ./LICENSE
- * for license terms and restrictions.
+ * Copyright (c) 2022-2026 SEGAR
+ * SPDX-License-Identifier: Apache-2.0
  *****************************************************************************/
 
 #include <chrono>

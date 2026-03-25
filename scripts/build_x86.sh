@@ -81,7 +81,7 @@ fi
 # Invoke shared build script
 "$SCRIPT_DIR/build_base.sh" \
     "build_x86" \
-    "cmake/x86_64-linux-gcc_9.5.0.toolchain.cmake" \
+    "cmake/x86_64-native.toolchain.cmake" \
     "x86_64" \
     "$BUILD_TYPE"
 

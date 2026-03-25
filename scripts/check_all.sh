@@ -19,7 +19,7 @@ PROCESS_NAMES=(
   action_client_async
   tasker
 )
-PROCESS_PATTERNS=( "timer.dag|timer_component" "common.dag|common_component" )
+PROCESS_PATTERNS=( "timer.dag|timer_component" "common.dag|common_component" "sync.dag|sync_component" )
 
 running=0
 exited=0

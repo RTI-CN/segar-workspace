@@ -1,2 +1,2 @@
-_enable_tracing_
 int32 width
+uint64 timestamp_ms

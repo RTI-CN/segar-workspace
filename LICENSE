@@ -1,122 +1,201 @@
-SEGAR PROPRIETARY LICENSE (LicenseRef-Segar-Proprietary)
-Copyright (c) 2022-2026 SEGAR (王士明). All rights reserved.
-SPDX-License-Identifier: LicenseRef-Segar-Proprietary
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
 
-IMPORTANT: This document provides a bilingual Chinese/English version. In case of any inconsistency,
-the Chinese version shall prevail.
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
-1. Purpose and Status
-SEGAR (also referred to as “Segar”) is a closed-source, proprietary and confidential software project. This license governs any access to,
-possession of, or use of SEGAR Source Code and/or Binary Packages, unless a separate Written Authorization (as defined below) expressly
-supersedes or supplements this license.
+   1. Definitions.
 
-ASSENT / ACCEPTANCE
-By accessing, possessing, installing, loading, running, copying, modifying, or otherwise using SEGAR (whether Source Code or Binary Packages),
-you acknowledge that you have read, understood, and agreed to be bound by all terms and restrictions of this license. If you do not agree to any term,
-you must immediately cease all use and delete all copies under your control.
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
 
-2. Licensor and Ownership
-Licensor: Wang Shiming (王士明) (“Licensor”).
-All intellectual property rights in SEGAR are owned by the Licensor, and the Licensor exclusively manages all external licensing and cooperation.
-The RTI team is an individual collaboration assisting in maintenance and extensions and is not affiliated with any company/organization; RTI team
-members are not licensors and have no authority to grant any external license.
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
 
-3. Definitions
-(1) “SEGAR / Segar” means all SEGAR source code, headers, libraries, binaries, build scripts, interface definitions, documentation, configurations,
-examples, and any modified or derivative versions thereof, and any related materials.
-(2) “Source Code” means any human-readable code and related materials, including but not limited to C/C++ sources, headers, scripts, IDL files,
-build files, etc.
-(3) “Binary Package” means any compiled library, executable, SDK package, or other object/binary distribution (including debug symbols if provided).
-(4) “Commercial” includes any direct or indirect business or commercial use, including but not limited to revenue-generating use, internal business use,
-customer-delivered use, production deployment, business-critical use, paid services involving SEGAR, or any use supporting a commercial product/service.
-(5) “Written Authorization” means an explicit written permission granted by the Licensor, including but not limited to a signed agreement or explicit email approval.
-(6) “RTI Member / Contributor” means any RTI team member or other contributor who has contributed code/scripts/docs to the SEGAR codebase (including submissions,
-merges, or accepted patches).
-(7) “Core Platform Scope” means generic capabilities related to SEGAR as a platform/middleware (referenced to industry-standard middleware/platform capability boundaries;
-ROS 2 platform/middleware-layer capabilities may be used as a reference), including but not limited to communications, discovery, serialization/IDL, parameters, services/actions, node/component model, toolchain,
-build/deployment scripts, diagnostics/monitoring, performance and stability improvements, and compatibility adaptations. Core Platform Scope excludes any company/customer-
-specific application/business logic, proprietary algorithms, private data, or undisclosed trade secrets.
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
 
-4. No License by Default
-No license or rights, express or implied, are granted by this notice or by possession of any part of SEGAR (Source Code or Binary Packages).
-Any permission must be obtained only through Written Authorization granted by the Licensor.
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
 
-5. Prohibited Unauthorized Use
-Unless you have Written Authorization from the Licensor, you must not directly or indirectly:
-(1) access, use, copy, modify, merge, compile, distribute, publish, disclose, or otherwise provide SEGAR Source Code to any third party;
-(2) use SEGAR Source Code or Binary Packages for any Commercial purpose;
-(3) distribute, sublicense, sell, rent, lend, assign, transfer, or otherwise provide SEGAR (Source Code or Binary Packages) to any third party;
-(4) to the maximum extent permitted by law, reverse engineer, decompile, disassemble, or otherwise attempt to derive source code or underlying implementation ideas
-from any Binary Package;
-(5) remove or alter copyright notices, SPDX identifiers/references, proprietary markings, or confidentiality markings.
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
 
-6. Free Academic/Learning/Evaluation Binary Packages
-The Licensor may make certain SEGAR Binary Packages available for academic/learning/evaluation purposes (“Free Packages”). With respect to Free Packages:
-(1) Free Packages may be used only for academic/learning/evaluation purposes;
-(2) Free Packages must not be used for any Commercial purpose without Written Authorization;
-(3) Free Packages must not be redistributed, sublicensed, or transferred to any third party without Written Authorization;
-(4) the reverse engineering restriction in Section 5(4) also applies to Free Packages.
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
 
-7. Unauthorized Acquisition: Required Remediation
-If you obtain or access SEGAR (Source Code or Binary Packages) without Written Authorization, you must immediately:
-(1) cease all use;
-(2) stop all distribution, disclosure, and sublicensing;
-(3) delete all copies within your possession or control (including backups, mirrors, CI artifacts, and copies on storage media);
-(4) make reasonable efforts to recall distributed copies or cause deletion of such copies;
-(5) promptly notify the Licensor and cooperate in remediation and handling;
-(6) provide a written certification/confirmation of compliance with the above remediation obligations upon the Licensor’s request.
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
 
-The above remediation obligations do not limit the Licensor’s right to pursue any legal remedies and claim damages (including reasonable costs incurred to stop the infringement).
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
 
-Any purported authorization, license, or permission granted by an unauthorized party is void ab initio.
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
 
-8. Contribution Compliance (RTI Team and Contributors)
-RTI Members and any contributors must comply with applicable local laws. Contributions to SEGAR must be limited to generic code/scripts/docs within the
-Core Platform Scope. Contributors must not submit:
-(1) any application/business-specific code unrelated to general platform capabilities;
-(2) any proprietary or confidential information of any employer/customer, trade secrets, undisclosed data, or restricted materials;
-(3) any unauthorized third-party intellectual property (including employer-restricted code/materials, or customer proprietary/patent-sensitive implementation details).
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
 
-If any such content is inadvertently contributed, it must be promptly reported to the Licensor and removed, and the contributor shall cooperate in remediation.
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
 
-9. Additional Conditions for Commercial Use (RTI Contributions / Non-Compete Arrangement)
-For any Commercial authorization, the commercial user acknowledges and agrees that if it employs or manages RTI Members/Contributors, then—provided that:
-(a) no confidential information, trade secrets, or third-party IP of the commercial user is disclosed; and
-(b) the contributions are limited to the Core Platform Scope,
-such personnel may contribute generic platform patches/scripts/fixes/improvements to SEGAR as a permitted compliant activity.
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
 
-The commercial user shall not, while continuing its Commercial use of SEGAR, treat such compliant contributions within the Core Platform Scope as a non-compete violation solely on that basis.
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
 
-If the commercial user cannot accept the above arrangement, or demands that such personnel stop the above compliant contributions, the commercial user shall first consult
-with the Licensor in writing to define a handling plan. If no agreement is reached, the Licensor may terminate the Commercial authorization for that commercial user;
-where the applicable Written Authorization document contains specific termination/termination procedures, such document shall prevail.
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
 
-10. Confidentiality
-SEGAR Source Code and any non-public related materials are confidential. Without Written Authorization, you must not disclose them to any third party.
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
 
-11. Disclaimer
-To the maximum extent permitted by law, SEGAR and Free Packages are provided “AS IS” without warranties of any kind, express or implied, including but not limited to
-merchantability, fitness for a particular purpose, non-infringement, accuracy, or error-free operation.
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
 
-12. Strong Limitation of Liability
-To the maximum extent permitted by law:
-(1) Free Packages: the Licensor shall have no liability for any loss or damages arising from or related to Free Packages;
-(2) exclusion of damages: the Licensor shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, revenues,
-business opportunities, goodwill, data, or business interruption, regardless of the theory of liability (contract, tort including negligence, strict liability, or otherwise),
-even if advised of the possibility of such damages;
-(3) liability cap: if the above limitations are held unenforceable, the Licensor’s aggregate liability related to SEGAR shall not exceed:
-(a) the actual amount paid to the Licensor under the specific Written Authorization giving rise to the claim; or
-(b) if no fees were paid, zero (0).
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
 
-Nothing in this section excludes or limits any liability that cannot be excluded or limited under applicable law.
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
 
-13. Enforcement and Remedies
-Any unauthorized use, distribution, disclosure, or commercialization may cause irreparable harm. The Licensor may seek all available legal and equitable remedies,
-including injunctive relief and damages.
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
 
-14. Governing Law and Dispute Resolution (PRC)
-This license is governed by the laws of the People’s Republic of China (excluding conflict of law rules).
-Any dispute arising out of or relating to this license or SEGAR shall be submitted to the competent People’s Court with jurisdiction at the Licensor’s domicile.
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
 
-15. Contact
-Email: mansm@163.com
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.

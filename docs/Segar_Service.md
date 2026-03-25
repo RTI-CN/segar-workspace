@@ -1,8 +1,8 @@
-# Getting Started with Service
+# Getting started with Service
 
 > **Note**: The contents of (optional configuration) or (optional reading) are not commonly used, please understand as appropriate.
 >
-> The general basic knowledge has been introduced in the introduction to using Segar Topic and will not be repeated in this article.
+> The general basic knowledge has been introduced in the introduction to Segar Topic and will not be repeated in this article.
 >
 > Service messages are defined in ROS 2-style `.srv` files.
 >
@@ -12,39 +12,38 @@
 
 ## 1. How to write .srv file
 
-### 1.1 File Location/Naming Convention/Type/Namespace
+### 1.1 File Location / Naming Convention / Type / Namespace
 
-File naming convention follows ROS 2 definition. For example, define a `SetCameraInfo` service message with namespace `example`:
+File naming convention follows ROS 2 definition. For example, define a `SetCameraInfo` service message with the namespace `example`:
 
 ```text
 src/type_src/example/srv/SetCameraInfo.srv
 ```
-
-- Use CamelCase for filenames (e.g. `SetCameraInfo.srv`)
+- Use CamelCase for file names (e.g. `SetCameraInfo.srv`)
 - The name part of the `.srv` file is the Segar service type name
-- The directory of the `.srv` file is the namespace, for example, `SetCameraInfo` corresponds to `namespace example::srv;`
+- The directory of the `.srv` file is the namespace, for example `SetCameraInfo` corresponds to `namespace example::srv;`
 - The syntax and subsequent usage are the same as ROS 2 and will not be introduced further.
 
 ---
 
-## 2. Basic usage examples of C++ (without Components)
+## 2. Basic usage examples of C++ (non-Component usage)
 
-The example is excerpted from `src/service_example/`, split into two examples: Server side and Client side.
+The example is excerpted from `src/service_example/` and split into two examples: Server side and Client side.
 
 ### 2.1 Code description
 
 - **(required)** Contains automatically generated srv message hpp file
-- **(required)** `service_name` of both sender and receiver must be exactly the same (example: `set_camera_info`)
+- **(required)** The `service_name` of both the sender and the receiver must be exactly the same (for example: `set_camera_info`)
 - **(required)** `rti::segar::Init(argv[0]);` is used to initialize Segar system functions
 - **(optional)** `rti::segar::WaitForShutdown();` is used to prevent the system main thread from exiting. Use Ctrl+C to exit.
 
-### 2.2 Server (Server, fully asynchronous)
+### 2.2 Server (Server, pure asynchronous)
 
 #### CreateService function description
 
 - **Template parameters**: service type defined in `.srv` file
 - **Parameter 1**: service name
-- **Parameter 2**: Process request and generate response callback
+- **Parameter 2**: Process the request and generate the callback of the response
 - **Return value**: Service object
 
 #### Server example
@@ -83,7 +82,6 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 ### 2.3 Client (Client, synchronous mode)
 
 #### CreateClient function description
@@ -92,7 +90,7 @@ int main(int argc, char* argv[]) {
 - **Parameter 1**: service name
 - **Return value**: Client object
 
-#### Sync client example
+#### Synchronization client example
 
 (`src/service_example/service_client_sync/src/service_client_sync.cc`)
 
@@ -136,13 +134,12 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 ### 2.4 Client (Client, asynchronous mode)
 
 #### SendRequest asynchronous function description
 
 - **Parameter 1**: request created by user
-- **Parameter 2**: The callback responsible for processing the response returned by the service
+- **Parameter 2**: callback responsible for processing the response returned by the service
 - **Return value**: Client object
 
 #### Asynchronous client example
@@ -194,14 +191,13 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 ### 2.5 (Optional Reading) RequestOptions Advanced Properties Example
 
-Do not set these unless needed.
+Do not set if necessary.
 
 - Timeout for waiting for the final response: `timeout` (default 5000ms, modify as needed)
-- Time to wait for Service discovery and matching: `wait_service_timeout_ms` (default 2000ms, usually use the default value)
-- Whether to wait for Service availability: `ensure_service_available` (do not modify this value)
+- Time to wait for completion of pairing with Service: `wait_service_timeout_ms` (default 2000ms, usually use the default value)
+- Whether to enable waiting for Service to complete pairing: `ensure_service_available` (do not modify this value)
 
 ```cpp
 ClientType::RequestOptions options;
@@ -217,10 +213,9 @@ client->SendRequest(
     },
     options);
 ```
-
 ---
 
-## 3. CLI Debugging
+## 3. CLI debugging
 
 The `segar service` command can be used to query the Service (for detailed functions, please refer to the Segar CLI Getting Started Document):
 

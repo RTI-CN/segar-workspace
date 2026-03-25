@@ -1,0 +1,1 @@
+add_example_lib(sync_component src/sync_component_example.cc)

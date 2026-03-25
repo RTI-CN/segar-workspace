@@ -1,0 +1,1 @@
+add_python_example(service_client_async src/service_client_async.py)

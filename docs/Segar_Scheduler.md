@@ -1,4 +1,4 @@
-# Getting Started with Segar Scheduler
+# Getting started with Segar Scheduler
 
 > **Description**: Scheduling configuration is used to define the CPU affinity, scheduling strategy, and priority of processes/threads/business tasks to achieve CPU resource isolation and real-time guarantee. Loaded via mainboard `-s` parameter, usually used with Component.
 
@@ -6,10 +6,10 @@
 
 ## 1. Core functions/document specifications
 
-- **Core role**: Define the CPU affinity (core binding), scheduling strategy (real-time/time-sharing), and priority of the process/thread/business task, and achieve CPU resource isolation and real-time guarantee through mainboard `-s` parameter association
+- **Core role**: Define the CPU affinity (core binding), scheduling strategy (real-time/time-sharing), and priority of the process/thread/business task, and achieve CPU resource isolation and real-time guarantee through mainboard `-s` parameter association.
 - **File Specifications**:
   - Format: Proto text format
-  - Naming: `segar_sched.conf` is recommended (or named according to the policy, such as `classic_sched.conf`), which needs to completely match the sched_name specified by mainboard `-s`
+  - Naming: `segar_sched.conf` is recommended (or named according to the policy, such as `classic_sched.conf`), which must completely match the sched_name specified by mainboard `-s`
   - Storage: It is recommended to place it in the `config/scheduler/` directory. The framework reads the scheduling configuration in the segar.pb.conf directory by default.
 
 ---
@@ -82,7 +82,6 @@ prio: 3 # The highest in the group
     }
 }
 ```
-
 ---
 
 ## 3. Scheduling parameters in mainboard
@@ -95,13 +94,12 @@ Example:
 ```bash
 mainboard -d examples/car_component.dag -p car_component_proc -s high_priority
 ```
-
 ---
 
 ## 4. (Optional reading) Advanced instructions
 
 ### 4.1 Process namespace and multi-process collaboration
 
-- **Process Namespace (Process Group)**: By specifying different process_groups through `-p`, components can be dispersed to run in different processes to achieve process isolation.
-- **Topic communication**: Components of different processes can communicate through the same Topic name (it is necessary to ensure that the Topic has no naming conflicts)
-- **Parameter sharing**: Components under the same process_group can share process-level parameters, and different processes need to be specified individually through configuration files.
+- **Process Namespace (Process Group)**: By specifying different process_groups with `-p`, components can be distributed to run in different processes to achieve process isolation.
+- **Topic Communication**: Components of different processes can communicate through the same Topic name (it is necessary to ensure that the Topic has no naming conflicts)
+- **Parameter sharing**: Components under the same process_group can share process-level parameters, and different processes need to be specified separately through configuration files.

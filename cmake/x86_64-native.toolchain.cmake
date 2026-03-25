@@ -1,5 +1,5 @@
-# Local x86_64 build toolchain configuration
-# For native x86_64 builds
+# Native x86_64 build toolchain configuration
+# For native x86_64 builds on the host machine
 
 # Use system defaults
 set(CMAKE_SYSTEM_NAME Linux)

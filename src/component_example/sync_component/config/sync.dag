@@ -1,0 +1,29 @@
+# Timer publishes two topics: /topic/image_front, /topic/image_rear
+# SyncComponentExample subscribes three: /topic/chatter, /topic/image_front, /topic/image_rear
+module_config {
+    module_library : "lib/libsync_component.so"
+    sync_components {
+        component_class_name : "SyncComponentExample"
+        config {
+            inner_node_name : "sync_component_example"
+            accept_diff: 2250
+            main_msg_cycle: 5000
+            accept_latency: 2450
+            readers {
+                topic: "/topic/image_front"
+                type: REQUIRED
+                buffer_size: 5
+            }
+            readers {
+                topic: "/topic/image_rear"
+                type: WAITABLE
+                buffer_size: 5
+            }
+            readers {
+                topic: "/topic/chatter"
+                type: OPTIONAL
+                buffer_size: 5
+            }
+        }
+    }
+}

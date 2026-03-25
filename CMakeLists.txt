@@ -52,6 +52,7 @@ list(APPEND CMAKE_MODULE_PATH "${THIRD_PARTY_PREFIX}/share/cmake/segar")
 find_package(RtiSegar REQUIRED)
 
 add_subdirectory(src)
+add_subdirectory(src_python)
 install_dependencies("${PLATFORM_NAME}" "${CMAKE_INSTALL_PREFIX}/third_party")
 install(PROGRAMS
   ${CMAKE_SOURCE_DIR}/scripts/start_all.sh

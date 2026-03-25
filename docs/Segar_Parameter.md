@@ -1,4 +1,4 @@
-# Getting Started with Parameter
+# Getting started with Parameter
 
 > **Note**: The contents of (optional configuration) or (optional reading) are not commonly used, please understand as appropriate.
 >
@@ -15,8 +15,8 @@
 ### 1.1 Basic types and Protobuf types
 
 - **Basic types**: int, string, double, etc., can be used directly
-- **Protobuf type**: defined by `.proto` file, such as `Header` message in `param_example.proto`
-- **Configuration file**: Use YAML format to load parameters, such as `config/params.yaml`
+- **Protobuf type**: defined through `.proto` file, such as `Header` message in `param_example.proto`
+- **Configuration file**: Load parameters using YAML format, such as `config/params.yaml`
 
 ### 1.2 params.yaml example
 
@@ -31,25 +31,24 @@ param_server:
       timestamp_sec: 1234.56
       sequence_num: 1
 ```
-
 ### 1.3 Naming convention
 
 - Parameter names are unique within the node
-- Protobuf type needs to be specified in YAML. `__proto_type__` is the complete proto type name (such as `param.example.Header`)
+- Protobuf type needs to be specified in YAML `__proto_type__` is the complete proto type name (such as `param.example.Header`)
 
 ---
 
-## 2. Basic usage examples of C++ (without Components)
+## 2. Basic usage examples of C++ (non-Component usage)
 
-The example is excerpted from `src/param_example/`, split into two examples: param_server (local parameters) and param_client (remote parameters).
+The example is excerpted from `src/param_example/` and split into two examples: param_server (local parameters) and param_client (remote parameters).
 
 ### 2.1 Code description
 
-- **(required)** Contains parameter API header `segar/parameter/segar_parameter_api.h`
-- **(required)** The local parameter needs to specify node; the remote parameter needs to specify the target `node_name` (example: `param_server`)
+- **(required)** Contains the parameter API header file `segar/parameter/segar_parameter_api.h`
+- **(required)** Local parameters need to specify node; remote parameters need to specify the target `node_name` (for example: `param_server`)
 - **(required)** `rti::segar::Init(argv[0]);` is used to initialize Segar system functions
 - **(optional)** `rti::segar::WaitForShutdown();` is used to prevent the system main thread from exiting. Use Ctrl+C to exit.
-- **Running order**: Run param_server first, then param_client
+- **Running order**: run param_server first, then param_client
 
 ### 2.2 Server (Parameter Server, local parameters)
 
@@ -59,7 +58,7 @@ The example is excerpted from `src/param_example/`, split into two examples: par
 - **Segar_Set_Local_Param**: Set local parameters (supports int, string, Protobuf, etc.)
 - **Segar_Get_Local_Param**: Get local parameters
 - **Segar_List_Local_Params**: List all local parameters
-- **Segar_Dump_Local_Params**: Save local parameters to a file
+- **Segar_Dump_Local_Params**: Save local parameters to file
 
 #### Server example
 
@@ -143,7 +142,6 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 ### 2.3 Client (Parameter Client, remote parameters)
 
 #### Remote parameter API description
@@ -226,10 +224,9 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 ---
 
-## 3. CLI Debugging
+## 3. CLI debugging
 
 The `segar param` command can be used to query and set Parameter (for detailed functions, please refer to the Segar CLI Getting Started Document):
 

@@ -1,0 +1,1 @@
+add_python_example(action_client_sync src/action_client_sync.py)

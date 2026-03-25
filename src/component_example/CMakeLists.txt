@@ -1,2 +1,3 @@
 add_subdirectory(common_component)
 add_subdirectory(timer_component)
+add_subdirectory(sync_component)

@@ -72,6 +72,7 @@ add_subdirectory(param_example)
 add_subdirectory(service_example)
 add_subdirectory(concurrent_example)
 add_subdirectory(topic_example)
+add_subdirectory(zero_copy_example)
 
 install(FILES ${CMAKE_CURRENT_LIST_DIR}/segar_config/segar_setup.bash DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/segar_config/config DESTINATION ${CMAKE_INSTALL_PREFIX})

@@ -1,4 +1,4 @@
-# Tracing User Guide
+# Tracing usage guide
 
 This article is for users and covers the enabling, data generation, import and query of tracing.
 
@@ -6,43 +6,39 @@ This article is for users and covers the enabling, data generation, import and q
 
 - **node**: manage source process/component
 - **session_type**: Session type, enumerated as TOPIC/SERVICE/ACTION/PARAM
-- **session**: Session name (such as the name of topic/service/action/parameter), used to indicate the specific business of related session_type
+- **session**: session name (such as the name of topic/service/action/parameter), used to indicate the specific business of related session_type
 - **session_idx**: The unique associated key of a session instance, used to indicate the "session number" of the session
-- **stage**: Stage point in the link (such as PUBLISH, MESSAGE_RESTORED, START_CALLBACK)
+- **stage**: stage point in the link (such as PUBLISH, MESSAGE_RESTORED, START_CALLBACK)
 - **event**: A proprietary field in `session_timeline`, indicating the event point name at that moment; when session_type is topic, it is equivalent to the topic name
-- **delay**: The time spent at adjacent points and the cumulative time spent at the starting point
+- **latency**: The time spent at adjacent points and the cumulative time spent at the starting point
 - **join/leave**: node’s online/offline status changes in the topology
 - **drop**: Lost statistics caused by matching failure in adjacent stages
 
-## 1. Scope of application and conditions of validity
+## 1. Scope of application and effective conditions
 
-- **Parameter**: Supported by default
-- **Msg/Service/Action**: Non-default, `_enable_tracing_` needs to be added to the `.msg/.srv/.action` file header to take effect
-- **Messages without `_enable_tracing_` enabled will not be logged**
+- **Parameter**: supported by default
+- **Msg/Service/Action**: Take effect after matching the list of `type_src/transport_messages`
+- **Messages for missed manifest rules will not be logged**
 
-Enable example (first line of file header):
+Configuration example (`type_src/transport_messages`):
 
 ```text
-_enable_tracing_
-int32 exec_times
----
-int32 total
-ResultDetail detail
----
-int32 current
+example/msg/*
+example/srv/*
+example/action/Test*
 ```
-
 ## 2. Configuration file
 
 Configuration file path (read during runtime): `$SEGAR_PATH/config/tracing_config.pb.txt`
 
 Key fields:
 
-| Field | illustrate |
+| Field | Description |
 |------|------|
+| enable_tracing | The only runtime switch, the default value is `true`; when `true`, tracing is allowed to take effect, when `false`, tracing is turned off entirely |
 | trace_data_path | Data root directory (supports absolute path or `~/`; relative path will be spelled to `$SEGAR_PATH`) |
-| max_trace_data_folder_size | Maximum directory size in MB |
-| auto_clear_old_trace_data | Whether to clean old directories before each run (default `false`) |
+| max_trace_data_folder_size | Maximum directory size (unit MB) |
+| auto_clear_old_trace_data | Whether to clear old directories before each run (default `false`) |
 
 ## 3. Start tracing to obtain trace data
 
@@ -51,8 +47,7 @@ After executing `source segar_setup.bash` in the output directory, run:
 ```bash
 mainboard -d config/tracing_node.dag
 ```
-
-You can start TracingNodeComponent and start collecting trace data.
+You can start TracingNodeComponent; start collecting trace data when `enable_tracing: true`. If `enable_tracing: false`, `TracingNodeComponent` will exit directly.
 
 tracing_node.dag configuration example:
 
@@ -67,7 +62,6 @@ module_config {
     }
 }
 ```
-
 **Generated data directory and format**: In the directory specified by `trace_data_path` in `tracing_config.pb.txt`, create the timestamp subdirectory `YYYYMMDDHHMMSS`, which contains:
 
 - a `topo.txt`
@@ -80,7 +74,6 @@ module_config {
 ```bash
 sudo tracing -i
 ```
-
 MySQL, python3-pymysql will be installed, and root authentication will be repaired so that ordinary users can connect.
 
 ### 4.2 Import tracing data
@@ -88,13 +81,11 @@ MySQL, python3-pymysql will be installed, and root authentication will be repair
 ```bash
 tracing -d /path/to/trace_data/20240206123000
 ```
-
 Append import (not commonly used, does not clear the database):
 
 ```bash
 tracing -d /path/to/trace_data/20240206123000 -a
 ```
-
 The above command needs to be executed in the output directory after `source segar_setup.bash`.
 
 ## 5. How to use tracing query
@@ -104,7 +95,6 @@ The above command needs to be executed in the output directory after `source seg
 ```bash
 tracing -c "help"
 ```
-
 Example output:
 
 ```bash
@@ -120,8 +110,8 @@ $ tracing -c "help"
 | session_summary_by_start_node(session_type, start_node, session_name, filter_sql, limit_num) | Summary list filtered by start_node/session_name and optional SQL predicate.                             |
 | session_summary_all(session_type, filter_sql, limit_num)                                     | Summary list with optional SQL predicate; session_type supports TOPIC/SERVICE/ACTION/PARAM (or 0/1/2/3). |
 | session_timeline(session_type, session_idx)                                                  | Full timeline for one session; session_type supports TOPIC/SERVICE/ACTION/PARAM (or 0/1/2/3).            |
-| query_delay_same_topic(node_1st, topic, node_2nd, filter_sql, limit_num)                     | Same-topic timeline with optional SQL predicate.                                                         |
-| query_delay_cross_topic(node_1st, topic_1st, node_2nd, topic_2nd, filter_sql, limit_num)     | Cross-topic timeline with optional SQL predicate.                                                        |
+| query_latency_same_topic(node_1st, topic, node_2nd, filter_sql, limit_num)                     | Same-topic timeline with optional SQL predicate.                                                         |
+| query_latency_cross_topic(node_1st, topic_1st, node_2nd, topic_2nd, filter_sql, limit_num)     | Cross-topic timeline with optional SQL predicate.                                                        |
 | drop_info(node_1st, topic, node_2nd, filter_sql)                                             | Query drop statistics along fixed adjacent pipeline with optional SQL predicate.                         |
 | dropped_records(node_1st, stage_1st, topic, node_2nd, stage_2nd, filter_sql, limit_num)      | Dropped records for one stage pair in the same topic with optional SQL predicate.                        |
 | rate(node, stage, topic, filter_sql, limit_num)                                              | Per-second rate (pps) for node/topic/stage with optional SQL predicate.                                  |
@@ -129,8 +119,15 @@ $ tracing -c "help"
 13 rows in set.
 OK: 0 rows affected.
 ```
-
 ### 5.2 Basic query
+
+| Command | Description |
+|------|------|
+| `tracing -c "nodes"` | Query all node information in the system (node_name, node_id, status, first_join_time, last_leave_time) |
+| `tracing -c "sessions"` | Query what sessions are in the system (such as topic, service, action, parameter, etc.) |
+| `tracing -c "stages"` | Query what types of buried points there are in the system (stage definition) |
+| `tracing -c "sessions_of_node('node_name')"` | Query the sessions on the specified node |
+| `tracing -c "nodes_of_session('session_type', 'session')"` | Query the nodes participating in a session |
 
 ```bash
 tracing -c "nodes"
@@ -139,7 +136,6 @@ tracing -c "stages"
 tracing -c "sessions_of_node('node_name')"
 tracing -c "nodes_of_session('session_type', 'session')"
 ```
-
 Example:
 
 ```bash
@@ -201,21 +197,19 @@ $ tracing -c "nodes_of_session('topic', 'NodeA')"
 4 rows in set.
 OK: 0 rows affected.
 ```
-
-### 5.3 Session query
+### 5.3 Session Query
 
 ```bash
 tracing -c "session_summary_by_start_node('ACTION', 'node_f', 'demo_action', 'start_time>''2026/02/11 19:13:39.530409''', 100)"
 tracing -c "session_summary_all('ACTION', '', 100)"
 tracing -c "session_timeline('ACTION', 7027348180303884)"
 ```
-
 Example:
 
 ```bash
 $ tracing -c "session_summary_by_start_node('ACTION', 'node_f', 'demo_action', 'start_time>''2026/02/11 19:13:38.530409''', 100)"
 +------------------+----------------------------+----------------------------+-------------+--------+------------+-------------+-----------------------+------------------------+
-| session_idx      | start_time                 | end_time                   | delay_total | points | node_count | topic_count | start_callback_points | finish_callback_points |
+| session_idx      | start_time                 | end_time                   | latency_total | points | node_count | topic_count | start_callback_points | finish_callback_points |
 +------------------+----------------------------+----------------------------+-------------+--------+------------+-------------+-----------------------+------------------------+
 | 7027348180303950 | 2026/02/11 19:13:39.530409 | 2026/02/11 19:13:39.531471 | 1062        | 20     | 2          | 4           | 4                     | 4                      |
 | 7027348180303951 | 2026/02/11 19:13:39.531602 | 2026/02/11 19:13:39.532852 | 1250        | 20     | 2          | 4           | 4                     | 4                      |
@@ -223,10 +217,22 @@ $ tracing -c "session_summary_by_start_node('ACTION', 'node_f', 'demo_action', '
 +------------------+----------------------------+----------------------------+-------------+--------+------------+-------------+-----------------------+------------------------+
 3 rows in set.
 OK: 0 rows affected.
+```
+**session_summary returns column description** (applies to `session_summary_by_start_node` / `session_summary_all`):
 
+| Column name | Description |
+|------|------|
+| latency_total | The duration of the entire session from start to end, in μs |
+| points | Number of buried points passed |
+| node_count | Number of nodes passed |
+| topic_count | The number of times the topic has been sent and received |
+| start_callback_points | Number of user callback functions triggered (start) |
+| finish_callback_points | Number of user callback functions triggered (end) |
+
+```bash
 $ tracing -c "session_summary_all('ACTION', '', 5)"
 +------------------+----------------------------+----------------------------+------------+--------------+-------------+--------+------------+-------------+-----------------------+------------------------+
-| session_idx      | start_time                 | end_time                   | start_node | session_name | delay_total | points | node_count | topic_count | start_callback_points | finish_callback_points |
+| session_idx      | start_time                 | end_time                   | start_node | session_name | latency_total | points | node_count | topic_count | start_callback_points | finish_callback_points |
 +------------------+----------------------------+----------------------------+------------+--------------+-------------+--------+------------+-------------+-----------------------+------------------------+
 | 7027348180303877 | 2026/02/11 19:12:43.280391 | 2026/02/11 19:12:43.282086 | node_f     | demo_action  | 1695        | 20     | 2          | 4           | 4                     | 4                      |
 | 7027348180303878 | 2026/02/11 19:12:43.530322 | 2026/02/11 19:12:43.531309 | node_f     | demo_action  | 987         | 20     | 2          | 4           | 4                     | 4                      |
@@ -239,7 +245,7 @@ OK: 0 rows affected.
 
 $ tracing -c "session_timeline('ACTION', 7027348180303884)"
 +-----------+-------------------+------------------+-----+-----------------+------------------+
-| node_name | event             | stage            | seq | delay_with_prev | delay_from_start |
+| node_name | event             | stage            | seq | latency_with_prev | latency_from_start |
 +-----------+-------------------+------------------+-----+-----------------+------------------+
 | node_f    | send_goalRequest  | PUBLISH          | 196 | 0               | 0                |
 | node_f    | send_goalRequest  | PUBLISH_FINISHED | 196 | 19              | 19               |
@@ -265,23 +271,29 @@ $ tracing -c "session_timeline('ACTION', 7027348180303884)"
 20 rows in set.
 OK: 0 rows affected.
 ```
-
 ### 5.4 Delay/Packet Loss/Rate
 
+| Command | Description |
+|------|------|
+| `query_latency_same_topic(node_1st, topic, node_2nd, filter_sql, limit_num)` | The latency of sending the same topic from one node to another node |
+| `query_latency_cross_topic(node_1st, topic_1st, node_2nd, topic_2nd, filter_sql, limit_num)` | Delay situation across topics and nodes |
+| `drop_info(node_1st, topic, node_2nd, filter_sql)` | Packet loss statistics (matching failed in adjacent stages) |
+| `dropped_records(...)` | Packet loss detailed records |
+| `rate(node, stage, topic, filter_sql, limit_num)` | Reception frequency in seconds (pps) |
+
 ```bash
-tracing -c "query_delay_same_topic('node_a', 'NodeA', 'node_h', '', 100)"
-tracing -c "query_delay_cross_topic('node_a', 'topic_a', 'node_c', 'topic_b', '', 100)"
+tracing -c "query_latency_same_topic('node_a', 'NodeA', 'node_h', '', 100)"
+tracing -c "query_latency_cross_topic('node_a', 'topic_a', 'node_c', 'topic_b', '', 100)"
 tracing -c "drop_info('node_a', 'NodeA', 'node_h', '')"
 tracing -c "dropped_records('node_a', 3, 'NodeA', 'node_h', 21, '', 100)"
 tracing -c "rate('node_a', 2, 'NodeA', 'time>''2026/02/11 19:13:05'' and time<''2026/02/11 19:13:10''', 100)"
 ```
-
 Example:
 
 ```bash
-$ tracing -c "query_delay_same_topic('node_a', 'NodeA', 'node_h', '', 10)"
+$ tracing -c "query_latency_same_topic('node_a', 'NodeA', 'node_h', '', 10)"
 +------------------+-----+----------------------------+---------------------------------+---------------------------------+-------------------------------+--------------------------------+-------------+
-| session_idx      | seq | publish_time               | delay_publish_finished_with_pre | delay_message_restored_with_pre | delay_start_callback_with_pre | delay_finish_callback_with_pre | delay_total |
+| session_idx      | seq | publish_time               | latency_publish_finished_with_pre | latency_message_restored_with_pre | latency_start_callback_with_pre | latency_finish_callback_with_pre | latency_total |
 +------------------+-----+----------------------------+---------------------------------+---------------------------------+-------------------------------+--------------------------------+-------------+
 | 7027223626252289 | 1   | 2026/02/11 19:12:39.259376 | 102                             | 0                               | 0                             | 0                              | 0           |
 | 7027223626252290 | 2   | 2026/02/11 19:12:39.309675 | 174                             | 0                               | 0                             | 0                              | 0           |
@@ -321,8 +333,10 @@ $ tracing -c "rate('node_a', 2, 'NodeA', 'time>''2026/02/11 19:13:05'' and time<
 4 rows in set.
 OK: 0 rows affected.
 ```
-
 ## 6. FAQ
 
-- **Only topo.txt is generated, no .tra data file**: Check whether the message definition `_enable_tracing_` is enabled (msg/service/action is not enabled by default); check whether TracingNodeComponent has been started (whether tracing_node.dag has been loaded).
-- **trace_data_path does not exist or is empty**: tracing_node is not started or fails to start; or the current user of the directory specified by `trace_data_path` in `tracing_config.pb.txt` does not have write permissions.
+- **race_data_path does not exist or is empty, or only topo.txt is generated without .tra data file**:
+  - Check if `enable_tracing` is `true` in `$SEGAR_PATH/config/tracing_config.pb.txt`.
+  - Check if the target interface matches the `type_src/transport_messages` rule.
+  - Check if TracingNodeComponent is started (tracing_node.dag is loaded).
+  - The current user in the `trace_data_path` specified directory in `tracing_config.pb.txt` does not have write permission.

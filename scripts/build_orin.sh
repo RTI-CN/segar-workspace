@@ -81,7 +81,7 @@ fi
 # Invoke shared build script
 "$SCRIPT_DIR/build_base.sh" \
     "build_orin" \
-    "cmake/aarch64-orin-gcc_13.2.0.toolchain.cmake" \
+    "cmake/aarch64-orin-gcc_11.4.0.toolchain.cmake" \
     "orin" \
     "$BUILD_TYPE"
 

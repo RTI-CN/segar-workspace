@@ -44,6 +44,7 @@ LAUNCH_LIST=(
   "action_example/action_client_async/scripts/launch.sh"
   "component_example/timer_component/scripts/launch.sh"
   "component_example/common_component/scripts/launch.sh"
+  "component_example/sync_component/scripts/launch.sh"
   "concurrent_example/tasker/scripts/launch.sh"
 )
 

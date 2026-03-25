@@ -1,0 +1,2 @@
+add_subdirectory(param_server)
+add_subdirectory(param_client)

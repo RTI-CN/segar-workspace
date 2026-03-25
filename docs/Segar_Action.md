@@ -1,8 +1,8 @@
-# Getting Started with Action
+# Getting started with Action
 
 > **Note**: The contents of (optional configuration) or (optional reading) are not commonly used, please understand as appropriate.
 >
-> The general basic knowledge of getting started with Segar Topic and getting started with Segar Service has been introduced and will not be repeated in this article.
+> Getting started with Segar Topic and getting started with Segar Service have already introduced the general basic knowledge and will not repeat it in this article.
 >
 > Action messages are defined in ROS 2-style `.action` files.
 >
@@ -12,42 +12,41 @@
 
 ## 1. How to write .action file
 
-### 1.1 File Location/Naming Convention/Type/Namespace
+### 1.1 File Location / Naming Convention / Type / Namespace
 
 File naming convention follows ROS 2 definition. For example, define a `LookUpTransform` action with namespace `example`:
 
 ```text
 src/type_src/example/action/LookUpTransform.action
 ```
-
 - Use CamelCase for filenames (e.g. `LookUpTransform.action`)
 - The name part of the `.action` file is the Segar Action type name
-- The directory of the `.action` file is the namespace, for example, `LookUpTransform` corresponds to `namespace example::action;`
-- The syntax and usage are the same as ROS 2 and will not be introduced further.
+- The directory of the `.action` file is the namespace, for example `LookUpTransform` corresponds to `namespace example::action;`
+- The syntax and usage are the same as ROS 2, and will not be introduced further.
 
 ---
 
-## 2. Basic usage examples of C++ (without Components)
+## 2. Basic usage examples of C++ (non-Component usage)
 
 The example is excerpted from `src/action_example/*/action_*.cc`, split into two examples: Server side and Client side.
 
 ### 2.1 Code description
 
 - **(required)** Contains automatically generated Action messages hpp file
-- **(required)** `action_name` of both sender and receiver must be exactly the same (example: `lookup_transform`)
+- **(required)** The `action_name` of both the sender and the receiver must be exactly the same (for example: `lookup_transform`)
 - **(required)** `rti::segar::Init(argv[0]);` is used to initialize Segar system functions
 - **(optional)** `rti::segar::WaitForShutdown();` is used to prevent the system main thread from exiting. Use Ctrl+C to exit.
 
-### 2.2 Server (Action Server, fully asynchronous)
+### 2.2 Server (Action Server, pure asynchronous)
 
 #### ActionServer\<T\>::Callbacks member description
 
-- **on_goal**: Process the goal request of ActionClient and return `false` to reject the goal
-- **on_cancel**: Process the cancel request of ActionClient and return `false` to reject the user's cancel goal.
+- **on_goal**: Process the goal request of ActionClient, return `false` to reject the goal
+- **on_cancel**: Process the cancel request of ActionClient and return `false` to reject the user's cancel goal
 - **on_execute**: Process the goal message of ActionClient and decide how to respond as follows:
-  1. `PublishFeedback(goal_id, feedback)`: Publish current progress
+  1. `PublishFeedback(goal_id, feedback)`: Publish the current progress
   2. `CancelGoal(goal_id, result)`: Cancel the goal midway and send the midway result to the Client
-  3. `Succeed(goal_id, result)`: successfully processed the goal and sent the final result to the Client
+  3. `Succeed(goal_id, result)`: Process the goal successfully and send the final result to the Client
 
 #### CreateActionServer function description
 
@@ -149,14 +148,13 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 #### Action Server Common ActionOptions Advanced Properties
 
 (Only the commonly used ones are introduced, sorted by common priority)
 
 - **max_execute_concurrency**: The number of tasks that Action Server can execute concurrently
 - **max_active_goals**: The number of unfinished tasks that Action Server can cache
-- **feedback_mode**: The mode for transmitting feedback to Action Client. If you want reliability, choose `OptionalMode::RTPS`; if you want efficiency, choose `OptionalMode::HYBRID`. Must be consistent with Action Client
+- **feedback_mode**: The mode for transmitting feedback to Action Client. For reliability, choose `OptionalMode::RTPS`, and for efficiency, choose `OptionalMode::HYBRID`. Must be consistent with Action Client
 - **status_publish_period_sec**: The interval for transmitting status to Action Client. The smaller the size, the higher the real-time performance; the larger the size, the lower the resource usage.
 - **status_history_depth**: The cached history status size. If you need the full amount, increase the value. If you only need the latest one, set it to 1.
 
@@ -164,7 +162,7 @@ int main(int argc, char* argv[]) {
 rti::segar::action::ActionOptions action_options;
 action_options.feedback_mode = OptionalMode::RTPS;
 action_options.status_mode = OptionalMode::HYBRID;
-action_options.get_result_qos = QosProfileConf::QOS_PROFILE_TF_STATIC;
+action_options.get_result_qos = QoSProfileConf::QOS_PROFILE_TF_STATIC;
 action_options.status_publish_period_sec = 0.1;
 action_options.terminal_state_retention_sec = 10.0;
 action_options.max_active_goals = 256;
@@ -172,15 +170,14 @@ action_options.max_execute_concurrency = 8;
 
 server = node->CreateActionServer<LookUpTransform>("lookup_transform", callbacks, action_options);
 ```
-
 ### 2.3 Client (Action Client, synchronous mode)
 
 #### ActionClient\<T\>::GoalCallbacks member description
 
-- **on_accept**: Handles the Ack Response received from ActionServer. `true`: ActionServer accepts the Goal request; `false`: ActionServer rejects the Goal request
+- **on_accept**: Handles Ack Response received from ActionServer. `true`: ActionServer accepts the Goal request; `false`: ActionServer rejects the Goal request
 - **on_result**: This function only takes effect in asynchronous mode and will be ignored in synchronous mode (using `SyncSendGoal`). Process the final Result received from ActionServer, and use the status parameter to obtain the Result in which of the following states: `STATUS_SUCCEEDED`, `STATUS_CANCELED`, `STATUS_ABORTED`
-- **on_cancel**: Process the Cancel processing status result received from ActionServer (`ERROR_REJECTED`, `ERROR_UNKNOWN_GOAL`, `ERROR_TIMEOUT`, `ERROR_NOT_CANCELABLE`, `SUCCESS_REQUESTED`)
-- **on_feedback**: Process Feedback messages received from ActionServer
+- **on_cancel**: Handle the Cancel processing status results received from ActionServer (`ERROR_REJECTED`, `ERROR_UNKNOWN_GOAL`, `ERROR_TIMEOUT`, `ERROR_NOT_CANCELABLE`, `SUCCESS_REQUESTED`)
+- **on_feedback**: Handle Feedback messages received from ActionServer
 
 #### CreateActionClient function description
 
@@ -193,18 +190,18 @@ server = node->CreateActionServer<LookUpTransform>("lookup_transform", callbacks
 #### SyncSendGoal synchronization function description
 
 - **Parameter 1**: Goal object to be sent
-- **Parameter 2**: The GoalID that uniquely marks the Goal obtained after sending
+- **Parameter 2**: The unique GoalID that marks the Goal obtained after sending
 - **Parameter 3**: GoalCallbacks (merged with global callbacks when created, the priority defined in this parameter is higher)
-- **Return Value**: `true` means the Goal was successfully sent and the response was received and the ActionServer accepted the Goal; `false` means otherwise
+- **Return value**: `true` means the Goal is successfully sent and the response is received and the ActionServer accepts the Goal; `false` means otherwise
 
 #### WaitForResult synchronization function description
 
 - **Parameter 1**: GoalID generated by `SyncSendGoal`
 - **Parameter 2**: Object reference to store the final Result
-- **Parameter 3**: Process the callback of Result, and obtain the Result status through the status parameter (`STATUS_SUCCEEDED`, `STATUS_CANCELED`, `STATUS_ABORTED`)
+- **Parameter 3**: Process the Result callback and obtain the Result status (`STATUS_SUCCEEDED`, `STATUS_CANCELED`, `STATUS_ABORTED`) through the status parameter
 - **Return value**: `true` means that the final Result is obtained on time; `false` means that the Result is obtained after a timeout
 
-#### Sync client example
+#### Synchronization client example
 
 (`src/action_example/action_client_sync/src/action_client_sync.cc`)
 
@@ -303,7 +300,6 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 #### Action Client Common ActionOptions Advanced Properties
 
 (Only the commonly used ones are introduced, sorted by common priority)
@@ -317,21 +313,20 @@ int main(int argc, char* argv[]) {
 rti::segar::action::ActionOptions action_options;
 action_options.feedback_mode = OptionalMode::RTPS;
 action_options.status_mode = OptionalMode::HYBRID;
-action_options.get_result_qos = QosProfileConf::QOS_PROFILE_TF_STATIC;
+action_options.get_result_qos = QoSProfileConf::QOS_PROFILE_TF_STATIC;
 action_options.wait_server_timeout_ms = 5000.0;
 action_options.wait_result_timeout_ms = 10000.0;
 
 client = node->CreateActionClient<LookUpTransform>("lookup_transform", callbacks, action_options);
 ```
-
 ### 2.4 Client (Action Client, asynchronous mode)
 
 #### AsyncSendGoal asynchronous function description
 
 - **Parameter 1**: Goal object to be sent
-- **Parameter 2**: The GoalID that uniquely marks the Goal obtained after sending
+- **Parameter 2**: The unique GoalID that marks the Goal obtained after sending
 - **Parameter 3**: GoalCallbacks (merged with global callbacks when created, the priority defined in this parameter is higher)
-- **Return value**: `true` means the Goal was successfully sent; `false` means the sending failed (unable to establish an effective link based on service discovery with ActionServer)
+- **Return value**: `true` means the Goal is sent successfully; `false` means the sending fails (an effective link based on service discovery cannot be established with ActionServer)
 
 #### Asynchronous client example
 
@@ -419,10 +414,9 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-
 ---
 
-## 3. CLI Debugging
+## 3. CLI debugging
 
 The `segar action` command can be used to query Action (for detailed functions, please refer to the Segar CLI Getting Started Document):
 

@@ -1,618 +1,656 @@
-# Segar API Reference
+# Segar API Reference Manual
 
 ## Introduction
 
-This document is intended for C++ developers who need a quick reference for common Segar framework APIs. Each API is presented in a table with the following fields: **Summary**, **Belongs To** (namespace/class), **Namespace**, **Header**, **Signature**, **Parameters**, and **Return Value**.
+This document is suitable for C++ developers to quickly review the common interfaces of the Segar framework. Each API includes: **Introduction**, **Official** (namespace/class), **Namespace**, **Header file**, **Signature**, **Parameters**, **Return value**, displayed in table form.
 
 ---
 
-## 1. Core Initialization
+## 1. Basics and initialization
 
-Required APIs for process entry: runtime initialization, node creation, and blocking wait. **Header**: `segar/segar.h`
+Necessary initialization, node creation and blocking wait for program entry. **Header file**: `segar/segar.h`
 
 ### Init
 
 | Field | Description |
 |------|------|
-| Summary | Required Segar runtime initialization function at process entry |
-| Belongs To | `rti::segar` namespace |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Segar runtime initialization function that must be called at program entry |
+| Belongs to | `rti::segar` namespace |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `bool Init(const char* argv0)` |
-| Parameters | `argv0`: process entry argument, typically `argv[0]`, used to initialize the Segar runtime |
-| Return Value | `true` on success, `false` on failure. This must be called at process entry; exit on failure |
+| Parameters | `argv0`: program entry parameter, usually passed `argv[0]`, used to initialize Segar runtime |
+| Return value | `true` means initialization is successful, `false` means failure. The program entry must be called, and it should exit when it fails |
 
 ### CreateNode
 
 | Field | Description |
 |------|------|
-| Summary | Creates a Segar node, which is the carrier object for creating Writer/Reader/Service/Client/ActionServer/ActionClient |
-| Belongs To | `rti::segar` namespace |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create Segar node, which is the carrier for creating Writer/Reader/Service/Client/ActionServer/ActionClient |
+| Belongs to | `rti::segar` namespace |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<Node> CreateNode(const std::string& name)` |
-| Parameters | `name`: node name, must be unique within the same process |
-| Return Value | Node smart pointer; null pointer on failure |
+| Parameters | `name`: node name, must be unique in the same process |
+| Return value | Node smart pointer, returns null pointer on failure |
 
 ### WaitForShutdown
 
 | Field | Description |
 |------|------|
-| Summary | Blocks the current thread until a shutdown signal is received (for example, Ctrl+C), commonly used to keep the main thread alive |
-| Belongs To | `rti::segar` namespace |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Block the current thread until it receives an exit signal (such as Ctrl+C), often used to keep the main thread alive |
+| Belongs to | `rti::segar` namespace |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void WaitForShutdown()` |
 | Parameters | None |
-| Return Value | None |
+| Return value | None |
 
 ---
 
-## 2. Topic Publish/Subscribe
+## 2. Topic publish and subscribe
 
-Topic-based pub/sub communication, supporting Writer publish and Reader callback subscription.
+Topic-based publish/subscribe communication supports Writer publishing and Reader subscription callbacks.
 
 ### CreateWriter
 
 | Field | Description |
 |------|------|
-| Summary | Creates a Topic publisher to send messages to a specified Topic |
-| Belongs To | `Node` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create a Topic publisher to send messages to the specified Topic |
+| Belongs to | `Node` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<Writer<T>> CreateWriter<T>(const std::string& topic_name)` |
-| Parameters | `topic_name`: Topic name; must exactly match the subscriber side, e.g. `"/topic/chatter"`; `T`: template message type (defined in `.msg`) |
-| Return Value | Writer smart pointer; null pointer on failure |
+| Parameters | `topic_name`: Topic name, which must be exactly the same as the subscriber, such as `"/topic/chatter"`; `T`: template parameter, message type (from .msg definition) |
+| Return value | Writer smart pointer, returns null pointer on failure |
 
 ### Write
 
 | Field | Description |
 |------|------|
-| Summary | Publishes one message to a Topic |
-| Belongs To | `Writer<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Post a message to Topic |
+| Belongs to | `Writer<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `bool Write(const std::shared_ptr<T>& msg)` |
-| Parameters | `msg`: message to publish, of type `std::shared_ptr<T>` |
-| Return Value | `true` if sent successfully, `false` otherwise |
+| Parameters | `msg`: The message to be published, type is `std::shared_ptr<T>` |
+| Return value | `true` means sending successfully, `false` means failure |
 
 ### CreateReader
 
 | Field | Description |
 |------|------|
-| Summary | Creates a Topic subscriber that receives messages via callback |
-| Belongs To | `Node` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create a Topic subscriber and receive messages through callbacks |
+| Belongs to | `Node` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<Reader<T>> CreateReader<T>(const std::string& topic_name, Callback callback[, options])` |
-| Parameters | `topic_name`: Topic name; must exactly match the publisher side; `callback`: callback invoked when messages are received; `options`: (optional) such as `pending_queue_size` (default 5), QoS, etc. |
-| Return Value | Reader smart pointer; null pointer on failure |
+| Parameters | `topic_name`: Topic name, which must be exactly the same as the publisher; `callback`: callback when receiving a message; `options`: (optional) such as `pending_queue_size` (default 5), qos, etc. |
+| Return value | Reader smart pointer, returns null pointer on failure |
 
 ---
 
-## 3. Service Calls
+## 3. Service service call
 
-Classic request-response model: Service handles requests and returns responses; Client supports synchronous and asynchronous calls.
+In the typical request-response model, the Service side processes the request and returns a Response, and the Client side makes a synchronous or asynchronous call.
 
 ### CreateService
 
 | Field | Description |
 |------|------|
-| Summary | Creates a service server and registers a request handler callback to respond to client requests |
-| Belongs To | `Node` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create a server and register request processing callbacks to respond to client requests |
+| Belongs to | `Node` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<Service<T>> CreateService<T>(const std::string& service_name, ServiceCallback callback)` |
-| Parameters | `service_name`: service name, must exactly match the client side; `callback`: request handler callback that must populate `response`; `T`: service type (defined in `.srv`) |
-| Return Value | Service smart pointer; null pointer on failure |
+| Parameters | `service_name`: service name, must be exactly the same as the client; `callback`: callback for processing requests, response needs to be filled in the callback; `T`: service type (from .srv definition) |
+| Return value | Service smart pointer, returns null pointer on failure |
 
 ### CreateClient
 
 | Field | Description |
 |------|------|
-| Summary | Creates a service client used to send requests to the service server |
-| Belongs To | `Node` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create a client to initiate requests to the server |
+| Belongs to | `Node` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<Client<T>> CreateClient<T>(const std::string& service_name)` |
-| Parameters | `service_name`: service name, must exactly match the server side; `T`: service type |
-| Return Value | Client smart pointer; null pointer on failure |
+| Parameters | `service_name`: service name, which must be exactly the same as the server; `T`: service type |
+| Return value | Client smart pointer, returns null pointer on failure |
 
-### SyncSendRequest
-
-| Field | Description |
+### SyncSendRequest| Field | Description |
 |------|------|
-| Summary | Sends a service request synchronously and waits for the response |
-| Belongs To | `Client<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Send service requests synchronously and wait for responses |
+| Belongs to | `Client<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<T::Response> SyncSendRequest(const std::shared_ptr<T::Request>& request)` |
 | Parameters | `request`: request object |
-| Return Value | Response smart pointer; non-null on success, null on failure or timeout |
+| Return value | Response smart pointer, non-null on success, returns null pointer on failure or timeout |
 
 ### AsyncSendRequest
 
 | Field | Description |
 |------|------|
-| Summary | Sends a service request asynchronously and receives the response via callback |
-| Belongs To | `Client<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Send service requests asynchronously and receive responses through callbacks |
+| Belongs to | `Client<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void AsyncSendRequest(const std::shared_ptr<T::Request>& request, ResponseCallback callback)` |
-| Parameters | `request`: request object; `callback`: signature `void(const std::shared_ptr<T::Response>& response)`, where null `response` indicates request failure |
-| Return Value | None |
+| Parameters | `request`: request object; `callback`: signature is `void(const std::shared_ptr<T::Response>& response)`, an empty response means the request failed |
+| Return value | None |
 
 ---
 
-## 4. Action Execution
+## 4. Action action execution
 
-Long-running actions (Goal/Feedback/Result) with cancellation and progress feedback. Client supports both synchronous and asynchronous calling modes.
+Long-running actions (Goal/Feedback/Result) support cancellation and progress feedback. Client supports synchronous and asynchronous calls.
 
 ### CreateActionServer
 
 | Field | Description |
 |------|------|
-| Summary | Creates an Action server to handle goal acceptance, cancellation, and execution |
-| Belongs To | `Node` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create an Action server to handle goal reception, cancellation and execution |
+| Belongs to | `Node` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<ActionServer<T>> CreateActionServer<T>(const std::string& action_name, const ActionServer<T>::Callbacks& callbacks)` |
-| Parameters | `action_name`: Action name; `callbacks`: includes `on_goal`, `on_cancel`, and `on_execute`; `T`: Action type (defined in `.action`) |
-| Return Value | ActionServer smart pointer; null pointer on failure |
+| Parameters | `action_name`: Action name; `callbacks`: Contains three callbacks: `on_goal`, `on_cancel`, `on_execute`; `T`: Action type (from .action definition) |
+| Return value | ActionServer smart pointer, returns null pointer on failure |
 
 ### PublishFeedback
 
 | Field | Description |
 |------|------|
-| Summary | Sends Action execution progress feedback to clients |
-| Belongs To | `ActionServer<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Send Action execution progress feedback to the client |
+| Belongs to | `ActionServer<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void PublishFeedback(const GoalID& goal_id, const std::shared_ptr<T::Feedback>& feedback)` |
-| Parameters | `goal_id`: unique identifier of the current goal; `feedback`: feedback message |
-| Return Value | None |
+| Parameters | `goal_id`: the unique identifier of the current goal; `feedback`: feedback message |
+| Return value | None |
 
 ### CancelGoal
 
 | Field | Description |
 |------|------|
-| Summary | Cancels a specified goal and finishes it with a result |
-| Belongs To | `ActionServer<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Unspecify goal and end with result |
+| Belongs to | `ActionServer<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void CancelGoal(const GoalID& goal_id, const std::shared_ptr<T::Result>& result)` |
-| Parameters | `goal_id`: goal identifier to cancel; `result`: result returned on cancellation (can include partial data) |
-| Return Value | None |
+| Parameters | `goal_id`: the goal identifier to be canceled; `result`: the result of cancellation (may contain partial data) |
+| Return value | None |
 
 ### Succeed
 
 | Field | Description |
 |------|------|
-| Summary | Marks a goal as successfully completed and returns a result |
-| Belongs To | `ActionServer<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Mark goal completed successfully and return result |
+| Belongs to | `ActionServer<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void Succeed(const GoalID& goal_id, const std::shared_ptr<T::Result>& result)` |
-| Parameters | `goal_id`: completed goal identifier; `result`: final result |
-| Return Value | None |
+| Parameters | `goal_id`: completed goal identification; `result`: final result |
+| Return value | None |
 
 ### CreateActionClient
 
 | Field | Description |
 |------|------|
-| Summary | Creates an Action client for sending goals and receiving feedback/result |
-| Belongs To | `Node` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create an Action client to send goal and receive feedback/result |
+| Belongs to | `Node` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `std::shared_ptr<ActionClient<T>> CreateActionClient<T>(const std::string& action_name[, const GoalCallbacks& callbacks])` |
-| Parameters | `action_name`: Action name; `callbacks`: (optional) GoalCallbacks including `on_accept`, `on_result`, `on_cancel`, and `on_feedback` |
-| Return Value | ActionClient smart pointer; null pointer on failure |
+| Parameters | `action_name`: Action name; `callbacks`: (optional) GoalCallbacks, including `on_accept`, `on_result`, `on_cancel`, `on_feedback` |
+| Return value | ActionClient smart pointer, returns null pointer on failure |
 
 ### SyncSendGoal
 
 | Field | Description |
 |------|------|
-| Summary | Sends a goal synchronously and blocks until the server accepts it or fails |
-| Belongs To | `ActionClient<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Send goal synchronously, blocking until the server accepts or fails |
+| Belongs to | `ActionClient<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `bool SyncSendGoal(const T::Goal& goal, GoalID* goal_id)` |
-| Parameters | `goal`: goal object to send; `goal_id`: output parameter receiving the unique goal identifier |
-| Return Value | `true` if sent successfully and accepted by the server, `false` on failure |
+| Parameters | `goal`: the goal object to be sent; `goal_id`: output parameter, used to receive the unique identifier of the goal |
+| Return value | `true` means successfully sent and accepted by the server, `false` means failure |
 
-### SyncCancelGoal
-
-| Field | Description |
+### SyncCancelGoal| Field | Description |
 |------|------|
-| Summary | Sends a cancellation request synchronously and waits for handling result |
-| Belongs To | `ActionClient<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Send a cancellation request synchronously and wait for the processing result |
+| Belongs to | `ActionClient<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `bool SyncCancelGoal(const GoalID& goal_id)` |
-| Parameters | `goal_id`: goal identifier to cancel |
-| Return Value | `true` if the cancellation request is sent and handled, `false` on failure |
+| Parameters | `goal_id`: the goal identifier to be canceled |
+| Return value | `true` means the cancellation request has been sent and processed, `false` means it failed |
 
-### WaitForResult (Overload 1)
+### WaitForResult (overload 1)
 
 | Field | Description |
 |------|------|
-| Summary | Waits for the result of a specified goal |
-| Belongs To | `ActionClient<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Waiting for the result of the specified goal |
+| Belongs to | `ActionClient<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `bool WaitForResult(const GoalID& goal_id)` |
-| Parameters | `goal_id`: goal identifier to wait for |
-| Return Value | `true` if a result is received before timeout, `false` on timeout |
+| Parameters | `goal_id`: the goal identifier to wait for |
+| Return value | `true` means result is received before timeout, `false` means timeout |
 
-### WaitForResult (Overload 2)
+### WaitForResult (overload 2)
 
 | Field | Description |
 |------|------|
-| Summary | Waits for the result of a specified goal and retrieves both Result and status code |
-| Belongs To | `ActionClient<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Wait for the result of the specified goal and obtain the Result and status code |
+| Belongs to | `ActionClient<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `bool WaitForResult(const GoalID& goal_id, T::Result* result, GoalStatusCode* status)` |
-| Parameters | `goal_id`: goal identifier to wait for; `result`: output parameter for Result; `status`: output parameter for status code (e.g. STATUS_SUCCEEDED, STATUS_CANCELED, STATUS_ABORTED) |
-| Return Value | `true` if a result is received before timeout, `false` on timeout |
+| Parameters | `goal_id`: waiting goal identifier; `result`: output parameter, receive Result; `status`: output parameter, receive status code (such as STATUS_SUCCEEDED, STATUS_CANCELED, STATUS_ABORTED) |
+| Return value | `true` means result is received before timeout, `false` means timeout |
 
 ### AsyncSendGoal
 
 | Field | Description |
 |------|------|
-| Summary | Sends a goal asynchronously without waiting for server acceptance |
-| Belongs To | `ActionClient<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Send goal asynchronously without waiting for the server to accept it |
+| Belongs to | `ActionClient<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `bool AsyncSendGoal(const T::Goal& goal, GoalID* goal_id)` |
-| Parameters | `goal`: goal object to send; `goal_id`: output parameter receiving the goal identifier |
-| Return Value | `true` if sent successfully, `false` if send failed (for example, server unavailable) |
+| Parameters | `goal`: the goal object to be sent; `goal_id`: output parameter, receiving the goal identifier |
+| Return value | `true` means successful sending, `false` means sending failed (such as unable to connect to the server) |
 
 ### AsyncCancelGoal
 
 | Field | Description |
 |------|------|
-| Summary | Sends a cancellation request asynchronously without waiting for completion |
-| Belongs To | `ActionClient<T>` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Send cancellation request asynchronously without waiting for processing to complete |
+| Belongs to | `ActionClient<T>` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void AsyncCancelGoal(const GoalID& goal_id)` |
-| Parameters | `goal_id`: goal identifier to cancel |
-| Return Value | None |
+| Parameters | `goal_id`: the goal identifier to be canceled |
+| Return value | None |
 
 ---
 
-## 5. Parameters
+## 5. Parameter parameter
 
-Node-level parameter management: local load/set/get/dump, plus remote parameter get/load for other nodes.
+Node-level parameter management: local loading/setting/getting/exporting, as well as getting and loading remote node parameters.
 
 ### Segar_Load_Local_Params
 
 | Field | Description |
 |------|------|
-| Summary | Loads local parameters into a node from a YAML or dump file |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` (used together with `segar/segar.h`) |
+| Introduction | Loading local parameters into nodes from YAML or dump files |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` (needs to be used with `segar/segar.h`) |
 | Signature | `bool Segar_Load_Local_Params(Node* node, const std::string& path)` |
 | Parameters | `node`: node pointer; `path`: YAML or dump file path |
-| Return Value | `true` on success, `false` on failure |
+| Return value | `true` means success, `false` means failure |
 
 ### Segar_List_Local_Params
 
 | Field | Description |
 |------|------|
-| Summary | Lists all local parameters on a node |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | List all local parameters of a node |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_List_Local_Params(Node* node, std::vector<Parameter>* out_list)` |
-| Parameters | `node`: node pointer; `out_list`: output parameter receiving the parameter list |
-| Return Value | `true` on success, `false` on failure |
+| Parameters | `node`: node pointer; `out_list`: output parameters, receive parameter list |
+| Return value | `true` means success, `false` means failure |
 
 ### Segar_Set_Local_Param
 
 | Field | Description |
 |------|------|
-| Summary | Sets a local parameter on a node (Value supports int, string, Protobuf, etc.) |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | Set the local parameters of the node (Value supports int, string, Protobuf, etc.) |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_Set_Local_Param(Node* node, const std::string& name, const Value& value)` |
 | Parameters | `node`: node pointer; `name`: parameter name; `value`: parameter value |
-| Return Value | `true` on success, `false` on failure |
+| Return value | `true` means success, `false` means failure |
 
 ### Segar_Get_Local_Param
 
 | Field | Description |
 |------|------|
-| Summary | Gets the value of a local parameter on a node |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | Get the local parameter value of the node |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_Get_Local_Param(Node* node, const std::string& name, Value* out_value)` |
-| Parameters | `node`: node pointer; `name`: parameter name; `out_value`: output parameter receiving the parameter value |
-| Return Value | `true` on success, `false` on failure |
+| Parameters | `node`: node pointer; `name`: parameter name; `out_value`: output parameter, receive parameter value |
+| Return value | `true` means success, `false` means failure |
 
-### Segar_Dump_Local_Params
-
-| Field | Description |
+### Segar_Dump_Local_Params| Field | Description |
 |------|------|
-| Summary | Dumps local node parameters to a file |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | Export a node's local parameters to a file |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_Dump_Local_Params(Node* node, const std::string& path)` |
-| Parameters | `node`: node pointer; `path`: output file path |
-| Return Value | `true` on success, `false` on failure |
+| Parameters | `node`: node pointer; `path`: save file path |
+| Return value | `true` means success, `false` means failure |
 
 ### Segar_Get_Remote_Param
 
 | Field | Description |
 |------|------|
-| Summary | Gets a parameter value from a remote node |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | Get the parameter value of the remote node |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_Get_Remote_Param(const std::string& node_name, const std::string& name, Value* out_value)` |
 | Parameters | `node_name`: remote node name; `name`: parameter name; `out_value`: output parameter |
-| Return Value | `true` on success, `false` on failure |
+| Return value | `true` means success, `false` means failure |
 
 ### Segar_Load_Remote_Params
 
 | Field | Description |
 |------|------|
-| Summary | Loads parameters from a file into a remote node |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | Load parameters from file to remote node |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_Load_Remote_Params(const std::string& node_name, const std::string& path)` |
 | Parameters | `node_name`: remote node name; `path`: YAML or dump file path |
-| Return Value | `true` on success, `false` on failure |
+| Return value | `true` means success, `false` means failure |
 
 ### Segar_List_Remote_Params
 
 | Field | Description |
 |------|------|
-| Summary | Lists all parameters on a remote node |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | List all parameters of the remote node |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_List_Remote_Params(const std::string& node_name, std::vector<Parameter>* out_list)` |
-| Parameters | `node_name`: remote node name; `out_list`: output parameter |
-| Return Value | `true` on success, `false` on failure |
+| Parameters | `node_name`: remote node name; `out_list`: output parameters |
+| Return value | `true` means success, `false` means failure |
 
 ### Segar_Dump_Remote_Params
 
 | Field | Description |
 |------|------|
-| Summary | Dumps remote node parameters to a file |
-| Belongs To | C-style API |
-| Namespace | None (global C-style function) |
-| Header | `segar/parameter/segar_parameter_api.h` |
+| Introduction | Export the parameters of a remote node to a file |
+| Belongs to | C interface |
+| namespace | None (global C-style functions) |
+| Header file | `segar/parameter/segar_parameter_api.h` |
 | Signature | `bool Segar_Dump_Remote_Params(const std::string& node_name, const std::string& path)` |
-| Parameters | `node_name`: remote node name; `path`: output file path |
-| Return Value | `true` on success, `false` on failure |
+| Parameters | `node_name`: remote node name; `path`: save file path |
+| Return value | `true` means success, `false` means failure |
 
 ---
 
-## 6. Timer
+## 6. Timer timer
 
-Periodic timer based on millisecond intervals, with configurable callback and auto-start behavior.
+A periodic timer based on millisecond intervals, you can specify a callback and whether to start automatically.
 
-### Timer Constructor
+### Timer constructor
 
 | Field | Description |
 |------|------|
-| Summary | Creates a periodic timer that invokes the callback at the specified interval |
-| Belongs To | `rti::segar::Timer` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Create a periodic timer and call back at specified intervals |
+| Belongs to | `rti::segar::Timer` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `Timer(int interval_ms, std::function<void()> callback, bool auto_start)` |
-| Parameters | `interval_ms`: execution interval in milliseconds; `callback`: no-argument callback executed on trigger; `auto_start`: whether to start automatically after construction |
-| Return Value | None (constructor) |
+| Parameters | `interval_ms`: execution interval, in milliseconds; `callback`: no parameter callback, executed when it expires; `auto_start`: whether to start automatically after construction |
+| Return value | None (constructor) |
 
 ### Start
 
 | Field | Description |
 |------|------|
-| Summary | Starts the timer and begins periodic callback execution |
-| Belongs To | `rti::segar::Timer` class |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Start the timer and start calling callback periodically at intervals |
+| Belongs to | `rti::segar::Timer` class |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void Start()` |
 | Parameters | None |
-| Return Value | None |
+| Return value | None |
 
 ---
 
-## 7. Concurrency Primitives
+## 7. Concurrency infrastructure
 
-Asynchronous execution, coroutine synchronization (TaskEvent), locking, yielding, and sleeping for multi-task and thread-safe scenarios.
+Asynchronous execution, coroutine synchronization (TaskEvent), lock, yield and sleep are used in multi-tasking and thread-safety scenarios.
 
 ### Async
 
 | Field | Description |
 |------|------|
-| Summary | Executes a callable asynchronously and returns a future for waiting on result |
-| Belongs To | `rti::segar` namespace |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
-| Signature | `std::future<R> Async(Callable&& callable)` (where `R` is the return type of `callable`) |
+| Introduction | Execute a callable object asynchronously and return a future to wait for the result |
+| Belongs to | `rti::segar` namespace |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
+| Signature | `std::future<R> Async(Callable&& callable)` (R is callable return type) |
 | Parameters | `callable`: callable object (function, lambda, etc.) |
-| Return Value | `std::future`, which can be used with `wait()`, `get()`, etc. |
+| Return value | `std::future`, can be used for `wait()`, `get()` to wait for the result |
 
 ### Execute
 
 | Field | Description |
 |------|------|
-| Summary | Executes a callable asynchronously in fire-and-forget mode, without waiting for completion |
-| Belongs To | `rti::segar` namespace |
-| Namespace | `rti::segar` |
-| Header | `segar/segar.h` |
+| Introduction | Asynchronous execution of callable objects, fire-and-forget, without waiting for execution to complete |
+| Belongs to | `rti::segar` namespace |
+| namespace | `rti::segar` |
+| Header file | `segar/segar.h` |
 | Signature | `void Execute(Callable&& callable, Args&&... args)` |
-| Parameters | `callable`: callable object; `args`: arguments passed to `callable` |
-| Return Value | None |
+| Parameters | `callable`: callable object; `args`: parameters passed to callable |
+| Return value | None |
 
 ### TaskEvent
 
 | Field | Description |
 |------|------|
-| Summary | Event synchronization object used for coroutine-to-coroutine notification |
-| Belongs To | `rti::segar::TaskEvent` class |
-| Namespace | `rti::segar` |
-| Header | `segar/task/task.h` |
-| Signature | class type |
+| Introduction | Event synchronization object, used for notification between coroutines |
+| Belongs to | `rti::segar::TaskEvent` class |
+| namespace | `rti::segar` |
+| Header file | `segar/task/task.h` |
+| signature | class type |
 | Parameters | — |
-| Return Value | — |
+| Return value | — |
 
-### Notify
-
-| Field | Description |
+### Notify| Field | Description |
 |------|------|
-| Summary | Notifies all coroutines waiting on this TaskEvent |
-| Belongs To | `TaskEvent` class |
-| Namespace | `rti::segar` |
-| Header | `segar/task/task.h` |
+| Introduction | Notify all coroutines waiting for this TaskEvent |
+| Belongs to | `TaskEvent` class |
+| namespace | `rti::segar` |
+| Header file | `segar/task/task.h` |
 | Signature | `void Notify()` |
 | Parameters | None |
-| Return Value | None |
+| Return value | None |
 
 ### Wait
 
 | Field | Description |
 |------|------|
-| Summary | Waits for TaskEvent notification with timeout support |
-| Belongs To | `TaskEvent` class |
-| Namespace | `rti::segar` |
-| Header | `segar/task/task.h` |
+| Introduction | Wait for TaskEvent notification, support timeout |
+| Belongs to | `TaskEvent` class |
+| namespace | `rti::segar` |
+| Header file | `segar/task/task.h` |
 | Signature | `bool Wait(std::chrono::duration timeout)` |
-| Parameters | `timeout`: timeout duration |
-| Return Value | `true` if notified before timeout, `false` on timeout |
+| Parameters | `timeout`: timeout period |
+| Return value | `true` means receiving notification before timeout, `false` means timeout |
 
 ### LockGuard
 
 | Field | Description |
 |------|------|
-| Summary | RAII-style mutex guard: locks on construction and unlocks on destruction; coroutine-safe |
-| Belongs To | `rti::segar::LockGuard<Mutex>` template class |
-| Namespace | `rti::segar` |
-| Header | `segar/task/task.h` |
+| Introduction | RAII style mutex lock, locked during construction and unlocked during destruction, coroutine security |
+| Belongs to | `rti::segar::LockGuard<Mutex>` template class |
+| namespace | `rti::segar` |
+| Header file | `segar/task/task.h` |
 | Signature | `LockGuard(Mutex& mutex)` |
-| Parameters | `mutex`: mutex reference (for example, `std::mutex`) |
-| Return Value | None |
+| Parameters | `mutex`: mutex reference (such as `std::mutex`) |
+| Return value | None |
 
 ### Yield
 
 | Field | Description |
 |------|------|
-| Summary | Yields execution of the current coroutine to avoid starving other coroutines |
-| Belongs To | `rti::segar` namespace |
-| Namespace | `rti::segar` |
-| Header | `segar/task/task.h` |
+| Introduction | Give up the execution rights of the current coroutine to prevent long-term occupation from starving other coroutines |
+| Belongs to | `rti::segar` namespace |
+| namespace | `rti::segar` |
+| Header file | `segar/task/task.h` |
 | Signature | `void Yield()` |
 | Parameters | None |
-| Return Value | None |
+| Return value | None |
 
 ### SleepFor
 
 | Field | Description |
 |------|------|
-| Summary | Coroutine-safe sleep; yields execution while sleeping |
-| Belongs To | `rti::segar` namespace |
-| Namespace | `rti::segar` |
-| Header | `segar/task/task.h` |
+| Introduction | Coroutine safe sleep, giving up execution rights during sleep |
+| Belongs to | `rti::segar` namespace |
+| namespace | `rti::segar` |
+| Header file | `segar/task/task.h` |
 | Signature | `void SleepFor(std::chrono::duration d)` |
 | Parameters | `d`: sleep duration |
-| Return Value | None |
+| Return value | None |
 
 ---
 
-## 8. Components
+## 8. Component
 
-DAG-based component framework: event-triggered components (`Component`) and timer-triggered components (`TimerComponent`), registered via `SEGAR_REGISTER_COMPONENT`.
+DAG-based component framework: event triggering (Component), timer triggering (TimerComponent) and multi-channel message synchronization triggering (SyncComponent), which need to be registered with `SEGAR_REGISTER_COMPONENT`.
 
-### Component Base Class
+### Component base class
 
 | Field | Description |
 |------|------|
-| Summary | Base class for event-triggered components; template parameters are input message types and must match the reader order in DAG |
-| Belongs To | `rti::segar::Component<InputType1, InputType2, ...>` template class |
-| Namespace | `rti::segar` |
-| Header | `segar/component/component.h` |
-| Signature | template class |
+| Introduction | The base class of event triggering components. The template parameter is the input message type, which is consistent with the order of readers in DAG |
+| Belongs to | `rti::segar::Component<InputType1, InputType2, ...>` Template class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/component.h` |
+| Signature | Template class |
 | Parameters | — |
-| Return Value | — |
+| Return value | — |
 
-### TimerComponent Base Class
+### TimerComponent base class
 
 | Field | Description |
 |------|------|
-| Summary | Base class for timer-triggered components; `Proc` is invoked periodically using DAG `interval` |
-| Belongs To | `rti::segar::TimerComponent` class |
-| Namespace | `rti::segar` |
-| Header | `segar/component/timer_component.h` |
-| Signature | class type |
+| Introduction | The timer trigger component base class calls Proc periodically according to the interval in the DAG |
+| Belongs to | `rti::segar::TimerComponent` class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/timer_component.h` |
+| signature | class type |
 | Parameters | — |
-| Return Value | — |
+| Return value | — |
 
-### Init (Virtual Function)
+### SyncComponent base class
 
 | Field | Description |
 |------|------|
-| Summary | Component initialization entry; component will not start if it returns false |
-| Belongs To | `Component` / `TimerComponent` base class |
-| Namespace | `rti::segar` |
-| Header | `segar/component/component.h` or `segar/component/timer_component.h` |
+| Introduction | Multi-topic synchronization component base class, triggers Proc after aligning/fusion of multiple inputs according to timestamp |
+| Belongs to | `rti::segar::SyncComponent<M0, M1, ...>` template class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/sync_component.h` |
+| Signature | Template class |
+| Parameters | — |
+| Return value | — |
+
+### Init (virtual function)
+
+| Field | Description |
+|------|------|
+| Introduction | Component initialization entry, the component will not start when false is returned |
+| Belongs to | `Component` / `TimerComponent` / `SyncComponent` base class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/component.h` or `segar/component/timer_component.h` or `segar/component/sync_component.h` |
 | Signature | `virtual bool Init()` |
 | Parameters | None |
-| Return Value | `true` for successful initialization, `false` for failure |
+| Return value | `true` means initialization is successful, `false` means failure |
 
-### Proc (Virtual Function)
-
-| Field | Description |
-|------|------|
-| Summary | Business logic entry: `Component` is event-triggered, `TimerComponent` is interval-triggered |
-| Belongs To | `Component` / `TimerComponent` base class |
-| Namespace | `rti::segar` |
-| Header | `segar/component/component.h` or `segar/component/timer_component.h` |
-| Signature | `Component`: `virtual bool Proc(const std::shared_ptr<Input1>& msg1, ...)`; `TimerComponent`: `virtual bool Proc()` |
-| Parameters | `Component::Proc` receives messages mapped one-to-one with DAG readers; `TimerComponent::Proc` takes no parameters |
-| Return Value | `true` for success, `false` for failure (the framework records errors) |
-
-### CreateWriter (Inside Components)
+### Proc (virtual function)
 
 | Field | Description |
 |------|------|
-| Summary | Inside components, create a publisher using `node_->CreateWriter<T>(topic)` |
-| Belongs To | `node_` member provided by `Component` / `TimerComponent` base class |
-| Namespace | `rti::segar` |
-| Header | `segar/component/component.h` or `segar/component/timer_component.h` |
-| Signature | Same as `Node::CreateWriter` |
-| Parameters | Same as `Node::CreateWriter` |
-| Return Value | Same as `Node::CreateWriter` |
+| Introduction | Component business logic entry, Component is triggered by events, TimerComponent is triggered by interval, and SyncComponent is triggered by synchronization results |
+| Belongs to | `Component` / `TimerComponent` / `SyncComponent` base class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/component.h` or `segar/component/timer_component.h` or `segar/component/sync_component.h` |
+| Signature | `Component`: `virtual bool Proc(const std::shared_ptr<Input1>& msg1, ...)`; `TimerComponent`: `virtual bool Proc()`; `SyncComponent`: `virtual bool Proc(const std::shared_ptr<M0>& msg0, const std::shared_ptr<M1>& msg1, ...)` |
+| Parameters | Proc of Component/SyncComponent receives messages corresponding to readers; TimerComponent has no parameters |
+| Return value | `true` indicates successful processing, `false` indicates failure (the framework will log the error) |
+
+### GetTimeStamp(virtual function, SyncComponent)| Field | Description |
+|------|------|
+| Introduction | Provides message timestamp to synchronizer for alignment and timeout calculation; needs to be implemented by SyncComponent subclass |
+| Belongs to | `SyncComponent` base class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/sync_component.h` |
+| Signature | Single input: `virtual uint64_t GetTimeStamp(const std::shared_ptr<M0>& msg0)`; Multiple input: `virtual uint64_t GetTimeStamp(size_t index, const std::shared_ptr<M0>& msg0, const std::shared_ptr<M1>& msg1, ...)` |
+| Parameters | `index`: message index (when multiple inputs are made); `msg*`: each input message |
+| Return value | Timestamp (usually the message time, the unit is defined by the business, commonly nanoseconds) |
+
+### TimeoutProc (optional virtual function, SyncComponent)
+
+| Field | Description |
+|------|------|
+| Introduction | Triggered when the processing conditions are not met or a timeout occurs during the synchronization cycle. The default implementation is empty and can be used for downgrade/alarm logic |
+| Belongs to | `SyncComponent` base class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/sync_component.h` |
+| Signature | `virtual void TimeoutProc()` |
+| Parameters | None |
+| Return value | None |
+
+### Fusionable (optional virtual function, SyncComponent multiple inputs)
+
+| Field | Description |
+|------|------|
+| Introduction | Fusion feasibility judgment hook before processing, when returning `false`, the current group message will not enter Proc |
+| Belongs to | `SyncComponent<M0, M1, ...>` base class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/sync_component.h` |
+| Signature | `virtual bool Fusionable(const std::shared_ptr<M0>& msg0, const std::shared_ptr<M1>& msg1, ...)` |
+| Parameters | Multiple input messages aligned with Proc |
+| Return value | `true` means it can be processed; `false` means skipping the fusion result |
+
+### CreateWriter (within component)
+
+| Field | Description |
+|------|------|
+| Introduction | Create a publisher through `node_->CreateWriter<T>(topic)` in the component |
+| Belongs to | `node_` member provided by `Component` / `TimerComponent` / `SyncComponent` base class |
+| namespace | `rti::segar` |
+| Header file | `segar/component/component.h` or `segar/component/timer_component.h` or `segar/component/sync_component.h` |
+| Signature | Same as Node::CreateWriter |
+| Parameters | Same as Node::CreateWriter |
+| Return value | Same as Node::CreateWriter |
 
 ### SEGAR_REGISTER_COMPONENT
 
 | Field | Description |
 |------|------|
-| Summary | Registers a component class with the framework so it can be loaded by DAG. Must be placed outside class definitions in global scope |
-| Belongs To | Macro (declared in `segar/component/component.h`, etc.) |
-| Namespace | None (macro expands to global scope) |
-| Header | `segar/component/component.h` |
+| Introduction | Register the component class to the framework so that the DAG can be loaded. Must be placed outside the class definition and in the global scope |
+| Belongs to | Macros (`segar/component/component.h`, etc.) |
+| Namespace | None (macro expands to global) |
+| Header file | `segar/component/component.h` |
 | Signature | `SEGAR_REGISTER_COMPONENT(ClassName)` |
 | Parameters | `ClassName`: component class name |
-| Return Value | — |
+| Return value | — |
 
 ---
 
-## 9. Logging
+## 9. Log
 
-Stream-style logging macros (`AINFO`, `AWARN`, `AERROR`) plus conditional logging. **Header**: `segar/segar.h`, **Namespace**: `rti::segar`
+Streaming log macros (AINFO/AWARN/AERROR) and conditional output. **Header file**: `segar/segar.h`, **Namespace**: `rti::segar`
 
-| Macro | Summary |
+| Macro | Introduction |
 |------|------|
-| **AINFO** | Info-level log stream, e.g. `AINFO << "message";` |
-| **AWARN** | Warning-level log stream |
-| **AERROR** | Error-level log stream |
-| **AINFO_IF(cond)** | Emits info only when condition is true, e.g. `AINFO_IF(cond) << "message";` |
+| **AINFO** | Information level log stream, usage such as `AINFO << "message";` |
+| **AWARN** | Warning level log stream |
+| **AERROR** | Error level log stream |
+| **AINFO_IF(cond)** | Output information when the condition is true, usage is like `AINFO_IF(cond) << "message";` |

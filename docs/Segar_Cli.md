@@ -1,4 +1,4 @@
-# Getting Started with Segar CLI
+# Getting started with Segar CLI
 
 > **Note**: For the convenience of users, the usage and output style of this tool are basically the same as ROS 2. The output information has been partially expanded and command completion is supported.
 >
@@ -18,7 +18,6 @@ commands:
   list                        List all nodes
   info <NodeName>             Node information
 ```
-
 ---
 
 ## 2. topic subcommand
@@ -37,7 +36,6 @@ commands:
   type <TopicName>            Display type of topic
   echo <TopicName>            Echo messages from a topic (protobuf only)
 ```
-
 ---
 
 ## 3. service subcommand
@@ -53,7 +51,6 @@ commands:
   type <ServiceName>          Display .srv type for a service
   info <ServiceName>          Display info of service
 ```
-
 ---
 
 ## 4. action subcommand
@@ -69,7 +66,6 @@ commands:
   type <ActionName>           Display .action type for an action
   info <ActionName>           Display info of action
 ```
-
 ---
 
 ## 5. param subcommand

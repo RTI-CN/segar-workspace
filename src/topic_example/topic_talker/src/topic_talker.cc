@@ -1,15 +1,14 @@
 /******************************************************************************
- * Copyright (c) 2022-2026 SEGAR. All Rights Reserved.
- * SPDX-License-Identifier: LicenseRef-Segar-Proprietary
- *
- * PROPRIETARY AND CONFIDENTIAL. See ./LICENSE
- * for license terms and restrictions.
+ * Copyright (c) 2022-2026 SEGAR
+ * SPDX-License-Identifier: Apache-2.0
  *****************************************************************************/
 
 #include <memory>
 #include <string>
 
 #include "example/msg/String.hpp"
+
+#include "segar/time/clock.h"
 
 #include "segar/segar.h"
 
@@ -22,6 +21,7 @@ int main(int argc, char* argv[]) {
   uint32_t seq = 0;
   auto callback = [&writer, &seq]() {
     auto msg = std::make_shared<example::msg::String>();
+    msg->timestamp_ms(rti::segar::Clock::Now().ToMillisecond());
     msg->data(std::to_string(seq++));
     AINFO_IF(!writer->Write(msg)) << "Failed to write msg:" << msg->data();
     AINFO << "Sent message: " << msg->data();

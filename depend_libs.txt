@@ -1,4 +1,3 @@
-third_party 2.0.0
-msg_tool 2.0.0
-segar 2.0.0
-
+third_party 2.2.0
+msg_tool 2.5.0
+segar 2.5.0
