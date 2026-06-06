@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "param_example.pb.h"
+#include "segar/proto/param_example.pb.h"
 
 #include "segar/parameter/segar_parameter_api.h"
 #include "segar/segar.h"

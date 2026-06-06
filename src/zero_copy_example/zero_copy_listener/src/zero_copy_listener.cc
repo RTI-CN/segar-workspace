@@ -8,14 +8,12 @@
 
 #include "example/msg/Image.hpp"
 
-#include "segar/message/loaned_message.h"
 #include "segar/segar.h"
 #include "segar/time/time.h"
 
 namespace {
 
-using LoanedZeroCopySample =
-    rti::segar::message::LoanedMessage<example::msg::Image>;
+using example::msg::Image;
 using rti::segar::Time;
 
 }  // namespace
@@ -26,23 +24,22 @@ int main(int argc, char* argv[]) {
   auto node = rti::segar::CreateNode("zero_copy_listener");
   RETURN_VAL_IF(!node, EXIT_FAILURE);
 
-  auto reader = node->CreateReader<LoanedZeroCopySample>(
+  auto reader = node->CreateReader<Image>(
       "/topic/zero_copy",
-      [](const std::shared_ptr<LoanedZeroCopySample>& msg) {
-        if (msg == nullptr || msg->GetMessage() == nullptr) {
-          AWARN << "received null loaned message";
+      [](const std::shared_ptr<Image>& msg) {
+        if (msg == nullptr) {
+          AWARN << "received null zero-copy image";
           return;
         }
-        const auto* data = msg->GetMessage();
         const uint64_t now_ms = Time::Now().ToMillisecond();
         const uint64_t latency_ms =
-            now_ms >= data->timestamp_ms() ? (now_ms - data->timestamp_ms()) : 0;
-        AINFO << "Received loaned zero-copy image: width=" << data->width()
+            now_ms >= msg->timestamp_ms() ? (now_ms - msg->timestamp_ms()) : 0;
+        AINFO << "Received zero-copy image: width=" << msg->width()
               << ", latency_ms=" << latency_ms;
       });
   RETURN_VAL_IF(!reader, EXIT_FAILURE);
 
-  AINFO << "Waiting for loaned zero-copy images...";
+  AINFO << "Waiting for zero-copy images...";
   rti::segar::WaitForShutdown();
   return EXIT_SUCCESS;
 }

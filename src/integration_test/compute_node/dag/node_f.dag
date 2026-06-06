@@ -1,0 +1,21 @@
+module_config {
+    module_library : "lib/libnode_f_component.so"
+    components {
+        component_class_name : "NodeFComponent"
+        config {
+            inner_node_name : "node_f"
+            readers {
+                topic: "NodeC1"
+            }
+            readers {
+                topic: "NodeC2"
+            }
+            readers {
+                topic: "NodeC3"
+            }
+            readers {
+                topic: "NodeC4"
+            }
+        }
+    }
+}

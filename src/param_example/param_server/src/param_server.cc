@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "param_example.pb.h"
+#include "segar/proto/param_example.pb.h"
 
 #include "segar/parameter/segar_parameter_api.h"
 #include "segar/segar.h"
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   using Parameter = rti::segar::Parameter;
 
   // Load local parameters.
-  RETURN_VAL_IF(!Segar_Load_Local_Params(node, "config/params.yaml"),
+  RETURN_VAL_IF(!Segar_Load_Local_Params(node, "config/param_server.yaml"),
                 EXIT_FAILURE);
   AINFO << "Parameter server started successfully";
 

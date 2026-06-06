@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from segar.proto import param_test_pb2
 from segar.python import parameter
 from segar.python import segar
 
@@ -11,7 +12,7 @@ def main():
     if node is None:
         return 1
 
-    if not parameter.Segar_Load_Local_Params(node, "config/params.yaml"):
+    if not parameter.Segar_Load_Local_Params(node, "config/param_server.yaml"):
         print("[param_server] load local params failed")
         return 1
 
@@ -19,6 +20,15 @@ def main():
         return 1
     if not parameter.Segar_Set_Local_Param(node, "p2_string", "test"):
         return 1
+
+    out_pb = parameter.OutValue()
+    if not parameter.Segar_Get_Local_Param(node, "p3_pb", out_pb, param_test_pb2.Header):
+        print("[param_server] get p3_pb failed")
+        return 1
+    print(
+        f"[param_server] p3_pb module_name={out_pb.value.module_name} "
+        f"points={len(out_pb.value.points)}"
+    )
 
     params = []
     if not parameter.Segar_List_Local_Params(node, params):

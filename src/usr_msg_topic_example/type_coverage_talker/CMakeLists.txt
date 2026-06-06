@@ -1,0 +1,1 @@
+add_usr_msg_example(type_coverage_talker src/type_coverage_talker.cc)

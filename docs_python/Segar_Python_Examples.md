@@ -1,38 +1,40 @@
-# Segar Python project example (src_python)
+# Segar Python 工程示例（src_python）
 
 ---
 
-## 1. Document entry
+## 1. 文档入口
 
-- [Segar Python User Manual](Segar_Python_User_Guide.md)
-- [Getting started with Python Topic](Segar_Python_Topic.md)
-- [Getting started with Python Service](Segar_Python_Service.md)
-- [Getting started with Python Action](Segar_Python_Action.md)
-- [Getting started with Python Parameter](Segar_Python_Parameter.md)
-- [Python API Reference Manual](Segar_Python_Api_Reference.md)
+- [Segar Python 用户手册](Segar_Python_User_Guide.md)
+- [Python Topic 使用入门](Segar_Python_Topic.md)
+- [Python Service 使用入门](Segar_Python_Service.md)
+- [Python Action 使用入门](Segar_Python_Action.md)
+- [Python Parameter 使用入门](Segar_Python_Parameter.md)
+- [Python API 参考手册](Segar_Python_Api_Reference.md)
 
 ---
 
-## 2. Directory layout
+## 2. 目录布局
 
-`src_python` is organized according to the same "project module" layout as `src`, and is installed to:
+`src_python` 按 `src` 同款“工程模块”布局组织，构建后安装到：
 
 - `build_x86/output/src_python/topic_example/...`
+- `build_x86/output/src_python/usr_msg_topic_example/...`
 - `build_x86/output/src_python/service_example/...`
 - `build_x86/output/src_python/action_example/...`
 - `build_x86/output/src_python/param_example/...`
 
 ---
 
-## 3. Build
+## 3. 构建
 
 ```bash
 cd /home/simon/segar/segar-workspace
 ./scripts/build_x86.sh
 ```
+
 ---
 
-## 4. Run (example)
+## 4. 运行（示例）
 
 ### Topic
 
@@ -40,10 +42,25 @@ cd /home/simon/segar/segar-workspace
 cd build_x86/output/src_python/topic_example/topic_listener
 ./scripts/launch.sh
 ```
-Open another terminal:
+
+再开一个终端：
 
 ```bash
 cd build_x86/output/src_python/topic_example/topic_talker
+./scripts/launch.sh
+```
+
+### usr_msg TypeCoverage Topic
+
+```bash
+cd build_x86/output/src_python/usr_msg_topic_example/type_coverage_listener
+./scripts/launch.sh
+```
+
+再开一个终端：
+
+```bash
+cd build_x86/output/src_python/usr_msg_topic_example/type_coverage_talker
 ./scripts/launch.sh
 ```
 
@@ -82,12 +99,17 @@ cd build_x86/output/src_python/param_example/param_server
 cd build_x86/output/src_python/param_example/param_client
 ./scripts/launch.sh
 ```
+
+`launch.sh` 启动时会自动切换到当前模块根目录，因此也可以直接在 `scripts/` 目录中执行 `bash launch.sh`。
+
 ---
 
-## 5. Current module mapping
+## 5. 当前模块映射
 
 - `topic_example/topic_talker`
 - `topic_example/topic_listener`
+- `usr_msg_topic_example/type_coverage_talker`
+- `usr_msg_topic_example/type_coverage_listener`
 - `service_example/service_server`
 - `service_example/service_client_sync`
 - `service_example/service_client_async`
@@ -99,14 +121,18 @@ cd build_x86/output/src_python/param_example/param_client
 
 ---
 
-## 6. Operating environment description
+## 6. 运行环境说明
 
-`launch.sh` will automatically set:
+`output/segar_setup.bash` 统一自动设置以下公共路径，不需要每个 Python 示例脚本`launch.sh`手工拼接：
 
 - `LD_LIBRARY_PATH`
 - `SEGAR_PATH`
-- `PYTHONPATH` (contains `output/lib/pythonX.Y/site-packages`)
+- `PYTHONPATH`
 
-Usually there is no need to manually set dependency paths.
+`usr_msg` 这类通用消息库会安装自己的 Python 消息包，Python 示例只需要导入对应消息类型，例如：
 
-If `plugin not found for package=example` appears in the running log, it means that the current SDK does not yet contain the Python interface plugin of `example` (`segar_py_*plugin_example.so`).
+```python
+from test_msgs.msg import TypeCoverage
+```
+
+当前 Python IDL 只支持 topic；Python IDL service/action 暂时不可用。

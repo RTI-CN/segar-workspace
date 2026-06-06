@@ -1,0 +1,13 @@
+# Request
+uint32 id
+uint64 timestamp
+uint32 sequence_number
+uint32 data_size
+uint8[] data
+---
+# Response (echo back)
+uint32 id
+uint64 timestamp
+uint32 sequence_number
+uint32 data_size
+uint8[] data

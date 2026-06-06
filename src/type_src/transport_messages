@@ -1,3 +1,4 @@
 example/action/LookUpTransform.action
 example/msg/*
 example/srv/SetCameraInfo.srv
+segar/srv/AddTwoInts.srv

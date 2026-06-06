@@ -1,0 +1,1 @@
+add_transform_example(transform_static_broadcaster src/transform_static_broadcaster.cc)

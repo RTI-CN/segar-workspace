@@ -1,0 +1,15 @@
+module_config {
+    module_library : "lib/libnode_h_component.so"
+    components {
+        component_class_name : "NodeHComponent"
+        config {
+            inner_node_name : "node_h"
+            readers {
+                topic: "NodeA"
+            }
+            readers {
+                topic: "NodeB"
+            }
+        }
+    }
+}

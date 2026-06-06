@@ -8,15 +8,13 @@
 
 #include "example/msg/Image.hpp"
 
-#include "segar/message/loaned_message.h"
 #include "segar/segar.h"
 #include "segar/time/rate.h"
 #include "segar/time/time.h"
 
 namespace {
 
-using LoanedZeroCopySample =
-    rti::segar::message::LoanedMessage<example::msg::Image>;
+using example::msg::Image;
 using rti::segar::Rate;
 using rti::segar::Time;
 
@@ -28,15 +26,14 @@ int main(int argc, char* argv[]) {
   auto node = rti::segar::CreateNode("zero_copy_talker");
   RETURN_VAL_IF(!node, EXIT_FAILURE);
 
-  auto writer = node->CreateWriter<LoanedZeroCopySample>("/topic/zero_copy");
+  auto writer = node->CreateWriter<Image>("/topic/zero_copy");
   RETURN_VAL_IF(!writer, EXIT_FAILURE);
 
   Rate rate(2.0);
   uint64_t width = 0;
   while (rti::segar::OK()) {
-    auto loaned_sample = writer->LoanSample();
-    auto* msg = loaned_sample.GetMessage();
-    if (msg == nullptr) {
+    auto msg = writer->LoanSample();
+    if (!msg) {
       AWARN << "LoanSample failed";
       rate.Sleep();
       continue;
@@ -45,10 +42,10 @@ int main(int argc, char* argv[]) {
     msg->width(static_cast<int32_t>(width));
     msg->timestamp_ms(Time::Now().ToMillisecond());
 
-    if (!writer->Write(loaned_sample)) {
-      AWARN << "Failed to write loaned zero-copy image, width=" << width;
+    if (!writer->Write(msg)) {
+      AWARN << "Failed to write zero-copy image, width=" << width;
     } else {
-      AINFO << "Sent loaned zero-copy image: width=" << width;
+      AINFO << "Sent zero-copy image: width=" << width;
     }
     ++width;
     rate.Sleep();

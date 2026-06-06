@@ -1,0 +1,12 @@
+module_config {
+    module_library : "lib/libnode_k_component.so"
+    components {
+        component_class_name : "NodeKComponent"
+        config {
+            inner_node_name : "node_k"
+            readers {
+                topic: "NodeJ"
+            }
+        }
+    }
+}

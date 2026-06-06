@@ -1,0 +1,12 @@
+module_config {
+    module_library : "lib/libnode_m_component.so"
+    components {
+        component_class_name : "NodeMComponent"
+        config {
+            inner_node_name : "node_m"
+            readers {
+                topic: "NodeL"
+            }
+        }
+    }
+}

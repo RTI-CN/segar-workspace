@@ -1,185 +1,187 @@
-#Segar 2.0 system pressure test report (Orin platform)
+# Segar 2.0系统加压测试报告（Orin平台）
 
-&gt; **Test Date**: 2026-02-11
-&gt; **Test duration**: 1 minute
-&gt; **Report Status**: Generated based on the latest integration test data
-
----
-
-## 1. Test Overview
-
-This system test is designed to simulate core business scenarios such as multi-sensor data fusion, distributed computing, service invocation and parameter management in real robot systems, and to verify the stability and performance of the system under complex topologies. Specific goals include:
-
-- Verify **publish/subscribe link stability**: including packet loss rate and message sequence consistency.
-- Validation of **End-to-End Communication Latency**: The complete link latency from sensor acquisition to completion of calculation by the final processing node.
-- Verify **parameter service and scheduled reading and writing mechanism**: simulate dynamic parameter loading and persistence during robot operation.
-- Verify **Service/Client calling mechanism**: including the reliability and responsiveness of synchronous/asynchronous calls between service nodes.
-- Verify **Action calling mechanism**: including the reliability and responsiveness of synchronous/asynchronous calling/call cancellation between service nodes.
-- Verification of **performance in high load scenarios**: Evaluate the performance attenuation and stability of each core function under pressurized conditions with CPU usage ≥75%.
-- Verify **system resource usage and process health status**: whether the memory usage is within a reasonable range and whether the process exits abnormally.
+&gt; **测试日期**：2026-02-11  
+&gt; **测试时长**：1分钟  
+&gt; **报告状态**：基于最新集成测试数据生成
 
 ---
 
-## 2. Test environment
+## 一、测试概述
 
-| Dimensions | Configuration instructions |
+本系统测试旨在模拟真实机器人系统中**多传感器数据融合、分布式计算、服务调用与参数管理等核心业务场景**，验证系统在复杂拓扑下的稳定性与性能表现。具体目标包括：
+
+- 验证**发布/订阅链路稳定性**：包括丢包率、消息顺序一致性。
+- 验证**端到端通信时延**：从传感器采集到最终处理节点完成计算的完整链路延迟。
+- 验证**参数服务与定时读写机制**：模拟机器人运行过程中动态参数加载与持久化。
+- 验证**Service/Client调用机制**：包括同步/异步调用在服务节点间的可靠性与响应能力。
+- 验证**Action调用机制**：包括同步/异步调用/调用取消在服务节点间的可靠性与响应能力。
+- 验证**高负载场景性能表现**：在CPU使用率≥75%的加压条件下，评估各核心功能的性能衰减与稳定性。
+- 验证**系统资源使用与进程健康状态**：内存占用是否在合理范围，进程是否异常退出。
+
+---
+
+## 二、测试环境
+
+| 维度 | 配置说明 |
 |------|----------|
-| Hardware | arm orin (enable 8-core CPU) |
-| OS & Kernel | ubuntu22.04 (linux) |
-| Middleware version | V2.0.0 |
+| 硬件 | arm orin (启用8核 CPU) |
+| OS & 内核 | ubuntu22.04（linux） |
+| 中间件版本 | V2.0.0 |
 
 ---
 
-## 3. System components and topology
+## 三、系统组件与拓扑结构
 
-The system contains the following core components:
+系统包含以下核心组件：
 
-- **15 sensor nodes** (Sensor1-15): simulate lidar, camera, IMU, ultrasound, etc., frequency range 15Hz-100Hz, data volume 4KB-1MB
-- **14 computing nodes** (NodeA-M/TimerComponent): Build multi-level data processing links
-- **Parameter Service Node** (NodeG): Provides parameter query/modification/persistence services
-- **Action Service Node** (NodeG): Provides action calling/cancellation services
-- **Service Node** (NodeH): Provides `add_two_ints` service
+- **15个传感器节点**（Sensor1-15）：模拟激光雷达、摄像头、IMU、超声波等，频率范围 15Hz-100Hz，数据量 4KB-1MB
+- **14个计算节点**（NodeA-M/TimerComponent）：构建多级数据处理链路
+- **参数服务节点**（NodeG）：提供参数查询/修改/持久化服务
+- **Action服务节点**（NodeG）：提供动作调用/取消服务
+- **服务节点**（NodeH）：提供 `add_two_ints` 服务
 
-- [Integration Test Topology](Integration_Test_Design.png) —— Segar integration test topology
+- [集成测试拓扑结构](Integration_Test_Design.png) —— Segar 集成测试拓扑结构
 
-### 1. Sensor simulation (sensor_node)
+### 1. 传感器模拟（sensor_node）
 
-Publish messages as an independent process
+作为独立进程发布消息
 
-- Simulate various sensors carried by the robot (such as lidar, camera, IMU, ultrasound, etc.).
-- Each sensor node is configured according to `sensor_config.json` and **periodically publishes topics with different frequencies and different amounts of data**.
-- Supports concurrent publishing of multiple processes, simulating scenarios of high concurrency and heterogeneous data sources in real robot systems.
+- 模拟机器人搭载的多种传感器（如激光雷达、摄像头、IMU、超声波等）。
+- 每个传感器节点根据 `sensor_config.json` 配置，**周期性发布不同频率、不同数据量的 topic**。
+- 支持多进程并发发布，模拟真实机器人系统中**高并发、异构数据源**的场景。
 
-&gt; Note: By configuring different sensor frequencies and data volumes, the load changes of the robot in different task scenarios can be simulated.
+&gt; 备注：通过配置不同传感器频率与数据量，模拟机器人在不同任务场景下的负载变化。
 
-### 2. Compute link (compute_node)
+### 2. 计算链路（compute_node）
 
-Using the component component mechanism, it is loaded as a module by the segar framework
+使用component组件机制，作为模块被segar框架加载
 
-Construct a multi-level data processing link to simulate the process of step-by-step fusion of sensory data and decision-making processing in the robot system:
+构建多级数据处理链路，模拟机器人系统中**感知数据逐级融合与决策处理**的过程：
 
-| Node | Input source | Output topic | Function description |
+| 节点 | 输入来源 | 输出topic | 功能描述 |
 |------|----------|-----------|----------|
-| NodeA | sensor1/4/6/7 | NodeA | Primary perception fusion (such as multi-camera image stitching) |
-| NodeB | sensor2/3/6/8/9 + NodeA | NodeB | Intermediate fusion (such as obstacle detection and tracking) |
-| NodeC | sensor8/9/10 + NodeA + NodeB | NodeC1~C4 | Advanced fusion (such as path planning input) |
-| NodeD/E/F | NodeC1~C4 | NodeD | Decision-making layer processing (such as behavioral decision-making) |
-| NodeG | NodeB + NodeD + NodeE + NodeF | / | Control instruction generation (such as speed control) |
-| NodeH | NodeA + NodeB | / | Provides `add_two_ints` service to simulate service calling scenarios |
-| NodeI | sensor5,11,12,13,14,15 | NodeI | NodeI-NodeH simulates a secure link (such as ABS) |
+| NodeA | sensor1/4/6/7 | NodeA | 初级感知融合（如多摄像头图像拼接） |
+| NodeB | sensor2/3/6/8/9 + NodeA | NodeB | 中级融合（如障碍物检测与跟踪） |
+| NodeC | sensor8/9/10 + NodeA + NodeB | NodeC1~C4 | 高级融合（如路径规划输入） |
+| NodeD/E/F | NodeC1~C4 | NodeD | 决策层处理（如行为决策） |
+| NodeG | NodeB + NodeD + NodeE + NodeF | / | 控制指令生成（如速度控制） |
+| NodeH | NodeA + NodeB | / | 提供 `add_two_ints` 服务，模拟服务调用场景 |
+| NodeI | sensor5,11,12,13,14,15 | NodeI | NodeI-NodeH 模拟安全兜底链路（如ABS） |
 | NodeJ | NodeE + NodeI | NodeJ | - |
 | NodeK | NodeJ | NodeK | - |
 | NodeL | NodeF + NodeK | NodeL | - |
 | NodeM | NodeL | / | - |
 
-&gt; Note: Simulate the data flow process from perception to decision-making to control in the robot system
+&gt; 备注：模拟机器人系统中**从感知到决策再到控制**的数据流转过程
 
-### 3. Service/Client Testing
+### 3. 服务/客户端测试
 
-Use the service/client mechanism provided by segar
+使用segar提供的service/client机制
 
-- **Service Node**: NodeH provides the `add_two_ints` service to simulate **task scheduling, status synchronization** and other service calling scenarios in the robot system.
-- **Client Node**: NodeA~E calls the service synchronously and asynchronously to verify the response capability and stability of the service under high concurrent requests.
+- **服务节点**：NodeH 提供 `add_two_ints` 服务，模拟机器人系统中**任务调度、状态同步**等服务调用场景。
+- **客户端节点**：NodeA~E 以同步与异步方式调用该服务，验证服务在高并发请求下的响应能力与稳定性。
 
-&gt; Remarks: The **inter-node collaborative work and task request** mechanism in the simulated robot system
+&gt; 备注：模拟机器人系统中**节点间协同工作与任务请求**机制
 
-### 4. Param test
+### 4. Param测试
 
-Use the Param and TimerComponent mechanisms provided by segar
+使用segar提供的Param与TimerComponent机制
 
-- **Service Node**: NodeG provides parameter services to simulate **parameter query/modification** scenarios in the robot system.
-- **Client Node**: The TimerComponent node periodically modifies/queries/stores parameters to NodeG.
+- **服务节点**：NodeG 提供 参数服务，模拟机器人系统中**参数查询/修改**场景。
+- **客户端节点**：TimerComponent节点周期性向NodeG修改/查询/存储参数。
 
-&gt; Note: **parameter management** mechanism in simulated robot system
+&gt; 备注：模拟机器人系统中**参数管理**机制
 
-### 5. Action test
+### 5. Action测试
 
-Use the Action mechanism provided by segar
+使用segar提供的Action机制
 
-- **Service Node**: NodeG provides Action service to simulate **action call/cancel** in the robot system.
-- **Client node**: NodeF NodeH TimerComponent makes an action call to NodeG
+- **服务节点**：NodeG 提供 Action服务，模拟机器人系统中**action调用/取消**。
+- **客户端节点**：NodeF NodeH TimerComponent向NodeG进行action调用
 
 ---
 
-## 4. Test results
+## 四、测试结果
 
-### Test Summary
+### 测试概要
 
-- **Testing time**: 2026-02-11
-- **Test module**: sensor link, service call, parameter management, resource monitoring
-- **Test Environment**: Test environment
-- **Test duration**: 1min
+- **测试时间**：2026-02-11
+- **测试模块**：传感器链路、服务调用、参数管理、资源监控
+- **测试环境**：测试环境
+- **测试时长**：1min
 
-**Test conclusion**: ✅ Passed (all indicators are within the normal range)
+**测试结论**：✅ 通过（各项指标均在正常范围内）
 
-| Module | Test Item | Result | Status |
+| 模块 | 测试项 | 结果 | 状态 |
 |------|--------|------|------|
-| Parameter Service | ParamTimerComponent | tick_count=63, dump_files=1 | ✅ Normal |
-| Service call | sync/async response | 1079/1080, server_requests=2160 | ✅ Normal |
-| Action call | sync+async/cancel response | 121/0/120 | ✅ Normal |
-| Link stability | Maximum packet loss rate | 0.3% (NodeB:sensor_topic_2) | ✅ Normal |
-| Communication latency | P99 latency | 12.3ms (NodeE:NodeC1) | ✅ Normal |
-| Resource Usage | CPU / Memory | 594% / 2618.04MB (RSS) | ✅ Normal (stress test) |
+| 参数服务 | ParamTimerComponent | tick_count=63, dump_files=1 | ✅ 正常 |
+| 服务调用 | sync/async 响应 | 1079/1080, server_requests=2160 | ✅ 正常 |
+| Action调用 | sync+async/cancel 响应 | 121/0/120 | ✅ 正常 |
+| 链路稳定性 | 最大丢包率 | 0.3% (NodeB:sensor_topic_2) | ✅ 正常 |
+| 通信时延 | P99 延迟 | 12.3ms (NodeE:NodeC1) | ✅ 正常 |
+| 资源使用 | CPU / 内存 | 594% / 2618.04MB (RSS) | ✅ 正常（加压测试） |
 
-### Detailed analysis
+### 详细分析
 
-#### 1. Parameter service (ParamTimerComponent)
+#### 1. 参数服务（ParamTimerComponent）
 
-- ✅ The initialization is successful, tick_count=62, indicating that the parameter timing reading and writing mechanism is operating normally.
-- ✅ dump_files=1, parameter persistence function has taken effect.&gt; **Conclusion**: The parameter timing reading and writing mechanism operates normally, and the persistence function has taken effect, meeting the dynamic configuration requirements of the robot system.
+- ✅ 初始化成功，tick_count=62，说明参数定时读写机制运行正常。
+- ✅ dump_files=1，参数持久化功能已生效。
 
-#### 2. Service call (Service/Client)
+&gt; **结论**：参数定时读写机制运行正常，持久化功能已生效，满足机器人系统动态配置需求。
 
-- ✅ The number of synchronous responses is 1079, the number of asynchronous responses is 1080, server_requests=2160, **requests and responses are within a reasonable range**.
-- ✅ No request loss or abnormal response, and the service call link is stable.
+#### 2. 服务调用（Service/Client）
 
-&gt; **Conclusion**: The `add_two_ints` service of service node NodeH performs well under high concurrent calls and meets the collaboration needs between nodes in the robot system.
+- ✅ 同步响应数为1079, 异步响应数均为 1080，server_requests=2160，**请求与响应在合理范围内**。
+- ✅ 无请求丢失或响应异常，服务调用链路稳定。
 
-#### 3. Action calling mechanism
+&gt; **结论**：服务节点 NodeH 的 `add_two_ints` 服务在高并发调用下表现良好，满足机器人系统中节点间协同需求。
 
-- ✅ Server target received 121, successfully completed 120, canceled 0.
-- ✅ Synchronization call success 48, synchronization timeout 0 (threshold ≤ 1)
-- ✅ The asynchronous result returns 69, the cancellation request sends 34, the cancellation is successful 34, the cancellation fails 0 (threshold ≤ 1)
+#### 3. Action调用机制
 
-&gt; **Conclusion**: The Action calling mechanism (synchronous/asynchronous/cancellation) runs stably, without timeout or cancellation failure, and meets the complex task scheduling requirements of the robot.
+- ✅ 服务端目标接收121，成功完成120，取消0。
+- ✅ 同步调用成功48，同步超时0（阈值≤1）
+- ✅ 异步结果返回69，取消请求发送34，取消成功34，取消失败0（阈值≤1）
 
-#### 4. Link stability (packet loss rate)
+&gt; **结论**：Action调用机制（同步/异步/取消）运行稳定，无超时和取消失败情况，满足机器人复杂任务调度需求。
 
-| Link | Packet Loss Rate | Status |
+#### 4. 链路稳定性（丢包率）
+
+| 链路 | 丢包率 | 状态 |
 |------|--------|------|
-| NodeB:sensor_topic_2 | 0.3322% | ✅ Normal |
-| Rest of links | 0% | ✅ Normal |
+| NodeB:sensor_topic_2 | 0.3322% | ✅ 正常 |
+| 其余链路 | 0% | ✅ 正常 |
 
-&gt; **Conclusion**: The packet loss rate of all links is well below the 1% judgment threshold, and the communication links are very stable, meeting the high reliability requirements of the robot system.
+&gt; **结论**：所有链路丢包率远低于 1% 的判定阈值，通信链路非常稳定，满足机器人系统高可靠性要求。
 
-#### 5. Communication latency
+#### 5. 通信时延
 
-| Link | P99 Latency | Average Latency | Status |
+| 链路 | P99 延迟 | 平均延迟 | 状态 |
 |------|----------|----------|------|
-| NodeC: sensor_topic_8 | 12.351ms | 1.029ms | ✅ Normal |
-| Rest of links | &lt; 8ms | &lt; 1ms | ✅ Normal |
+| NodeC: sensor_topic_8 | 12.351ms | 1.029ms | ✅ 正常 |
+| 其余链路 | &lt; 8ms | &lt; 1ms | ✅ 正常 |
 
-&gt; **Conclusion**: The maximum P99 latency is 12.351ms, which is within a reasonable range (<15ms), meeting the real-time perception and decision-making needs of the robot.
+&gt; **结论**：最大 P99 延迟为 12.351ms，在合理范围内（&lt; 15ms），满足机器人实时感知与决策需求。
 
-#### 6. Resource usage
+#### 6. 资源使用
 
-- ✅CPU usage: around 76% (595/800) (stress test)
-- ✅ Total memory usage: 2.4GB (RSS)
+- ✅ CPU 使用率：76%（595/800）左右（加压测试）
+- ✅ 内存总占用：2.4GB（RSS）
 
-&gt; **Conclusion**: Low system resource usage and lightweight operation
+&gt; **结论**：系统资源占用低，运行轻量
 
 ---
 
-## Test conclusion
+## 测试结论
 
-The Segar concept version system performs excellently on the Orin platform:
+Segar概念版系统在Orin平台上表现优异：
 
-1. **Stability**: All core functional modules run stably, without crashes or abnormal exits.
-2. **Reliability**: Packet loss rate is less than 0.5%, service call success rate is 100%
-3. **Real-time**: End-to-end latency is controlled within 15ms, meeting real-time control requirements
-4. **Resource efficiency**: On an 8-core system, the CPU occupies about 600% (stress test), the memory occupies about 2.4GB, and the resources are reasonably utilized.
-5. **Extensibility**: Supports multi-frequency sensor access and large data packet transmission
+1. **稳定性**：所有核心功能模块运行稳定，无崩溃或异常退出
+2. **可靠性**：丢包率低于0.5%，服务调用成功率100%
+3. **实时性**：端到端延迟控制在15ms以内，满足实时控制需求
+4. **资源效率**：在8核系统上CPU占用约600%（加压测试），内存占用约2.4GB，资源利用合理
+5. **扩展性**：支持多频率传感器接入，支持大数据包传输
 
-**The system is ready for deployment in real robot scenarios. **
+**系统已具备在真实机器人场景中部署的条件。**
 
 ---

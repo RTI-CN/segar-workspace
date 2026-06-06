@@ -1,0 +1,1 @@
+add_example(component_lifecycle_demo src/component_lifecycle_demo.cc)

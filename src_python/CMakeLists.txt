@@ -30,6 +30,7 @@ function(add_python_example TARGET_NAME MAIN_SCRIPT)
 endfunction()
 
 add_subdirectory(topic_example)
+add_subdirectory(usr_msg_topic_example)
 add_subdirectory(service_example)
 add_subdirectory(action_example)
 add_subdirectory(param_example)

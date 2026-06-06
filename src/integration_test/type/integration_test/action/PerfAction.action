@@ -1,0 +1,12 @@
+uint32 seq
+uint32 payload_size
+uint8[] payload
+---
+uint32 seq
+uint32 payload_size
+uint8[] payload
+uint64 server_recv_ts_us
+uint64 server_send_ts_us
+---
+uint32 progress
+uint32 payload_size

@@ -1,0 +1,44 @@
+module_config {
+    module_library : "lib/libsync_integration_component.so"
+    sync_components {
+        component_class_name : "SyncIntegrationNode"
+        config {
+            inner_node_name : "sync_integration"
+            # main_msg_cycle: expected period of main stream (sensor_topic_1: 20Hz -> ~50ms)
+            main_msg_cycle: 50
+            # accept_diff: time window (ms) for matching other streams around base
+            accept_diff: 40
+            # accept_latency: extra waiting window after each main period
+            accept_latency: 40
+
+            # Main stream: sensor_topic_1, REQUIRED
+            readers {
+                topic: "sensor_topic_1"
+                type: REQUIRED
+                buffer_size: 5
+            }
+
+            # Additional REQUIRED stream: sensor_topic_2
+            readers {
+                topic: "sensor_topic_2"
+                type: REQUIRED
+                buffer_size: 5
+            }
+
+            # WAITABLE stream: sensor_topic_3
+            readers {
+                topic: "sensor_topic_3"
+                type: WAITABLE
+                buffer_size: 5
+            }
+
+            # OPTIONAL stream: sensor_topic_4
+            readers {
+                topic: "sensor_topic_4"
+                type: OPTIONAL
+                buffer_size: 5
+            }
+        }
+    }
+}
+

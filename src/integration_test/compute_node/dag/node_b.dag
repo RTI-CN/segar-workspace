@@ -1,0 +1,27 @@
+module_config {
+    module_library : "lib/libnode_b_component.so"
+    components {
+        component_class_name : "NodeBComponent"
+        config {
+            inner_node_name : "node_b"
+            readers {
+                topic: "sensor_topic_2"
+            }
+            readers {
+                topic: "sensor_topic_3"
+            }
+            readers {
+                topic: "sensor_topic_6"
+            }
+            readers {
+                topic: "sensor_topic_8"
+            }
+            readers {
+                topic: "sensor_topic_9"
+            }
+            readers {
+                topic: "NodeA"
+            }
+        }
+    }
+}

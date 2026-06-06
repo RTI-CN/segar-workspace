@@ -5,10 +5,16 @@
 set -e
 
 # Process names corresponding to demos started by start_all.sh
-# Linux comm is limited to 15 chars; use `pgrep -f` for longer names
+# Notes:
+# - Linux comm is limited to 15 chars, so `pgrep -x` is not reliable for long names (can collide).
+# - We use `pgrep -f -a` and filter to the real binary argv0, excluding launch scripts.
 PROCESS_NAMES=(
   topic_talker
   topic_listener
+  transform_broadcaster
+  transform_static_broadcaster
+  transform_listener
+  transform_static_listener
   service_server
   service_client_sync
   service_client_async
@@ -17,21 +23,29 @@ PROCESS_NAMES=(
   action_server
   action_client_sync
   action_client_async
-  tasker
+  wait_event_talker
+  wait_event_listener
 )
 PROCESS_PATTERNS=( "timer.dag" "common.dag" "sync.dag" )
+
+find_pids_for_name() {
+  local name="$1"
+  pgrep -f -a "$name" 2>/dev/null | awk -v n="$name" '
+    {
+      pid=$1
+      cmd=substr($0, index($0,$2))
+      if (cmd ~ /launch\.sh/) next
+      if (cmd ~ ("(^|.*/)" n "([[:space:]]|$)")) print pid
+    }
+  ' || true
+}
 
 echo "Stopping processes by name/pattern..."
 all_pids=()
 for name in "${PROCESS_NAMES[@]}"; do
-  if [ ${#name} -gt 15 ]; then
-    pids_cmd="pgrep -f $name"
-  else
-    pids_cmd="pgrep -x $name"
-  fi
   while read -r pid; do
     [ -n "$pid" ] && all_pids+=( "$pid" )
-  done < <(eval "$pids_cmd" 2>/dev/null || true)
+  done < <(find_pids_for_name "$name")
 done
 for pattern in "${PROCESS_PATTERNS[@]}"; do
   while read -r pid; do

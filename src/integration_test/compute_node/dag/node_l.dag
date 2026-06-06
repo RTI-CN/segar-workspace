@@ -1,0 +1,15 @@
+module_config {
+    module_library : "lib/libnode_l_component.so"
+    components {
+        component_class_name : "NodeLComponent"
+        config {
+            inner_node_name : "node_l"
+            readers {
+                topic: "NodeF"
+            }
+            readers {
+                topic: "NodeK"
+            }
+        }
+    }
+}

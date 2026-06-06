@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # ARM cross-compilation script (for Orin platform)
-# Usage: build_orin.sh [-d] [-r] [-ra] [-h]
+# Usage: build_orin.sh [-d] [-r] [-ra] [-it] [-h]
 #   -d: Build Debug variant (default: Release)
 #   -r: Remove build_orin directory
 #   -ra: Remove build_orin and install/orin directories
+#   -it: Enable integration_test module
 #   -h: Show help
 
 set -e
@@ -17,16 +18,22 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BUILD_TYPE="Release"
 CLEAN_BUILD=false
 CLEAN_ALL=false
+ENABLE_INTEGRATION_TEST=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
-            echo "Usage: $0 [-d] [-r] [-ra] [-h]"
+            echo "Usage: $0 [-d] [-r] [-ra] [-it] [-h]"
             echo "  -d:  Build Debug variant (default: Release)"
             echo "  -r:  Remove build_orin directory"
             echo "  -ra: Remove build_orin and install/orin directories"
+            echo "  -it: Enable integration_test module"
             echo "  -h:  Show this help message"
             exit 0
+            ;;
+        -it)
+            ENABLE_INTEGRATION_TEST=true
+            shift
             ;;
         -d)
             BUILD_TYPE="Debug"
@@ -43,10 +50,11 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "Unknown argument: $1"
-            echo "Usage: $0 [-d] [-r] [-ra] [-h]"
+            echo "Usage: $0 [-d] [-r] [-ra] [-it] [-h]"
             echo "  -d:  Build Debug variant (default: Release)"
             echo "  -r:  Remove build_orin directory"
             echo "  -ra: Remove build_orin and install/orin directories"
+            echo "  -it: Enable integration_test module"
             echo "  -h:  Show this help message"
             exit 1
             ;;
@@ -79,11 +87,16 @@ fi
 # If cleanup-only behavior is needed, stop manually after -r/-ra or add a dedicated option.
 
 # Invoke shared build script
+EXTRA_CMAKE_ARGS=()
+if [ "$ENABLE_INTEGRATION_TEST" = true ]; then
+    EXTRA_CMAKE_ARGS+=(-DENABLE_INTEGRATION_TEST=ON)
+fi
 "$SCRIPT_DIR/build_base.sh" \
     "build_orin" \
     "cmake/aarch64-orin-gcc_11.4.0.toolchain.cmake" \
     "orin" \
-    "$BUILD_TYPE"
+    "$BUILD_TYPE" \
+    "${EXTRA_CMAKE_ARGS[@]}"
 
 echo "Target architecture: aarch64 (ARM64)"
 echo "Build type: $BUILD_TYPE"

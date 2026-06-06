@@ -1,3 +1,6 @@
-third_party 2.2.0
-msg_tool 2.5.0
-segar 2.5.0
+third_party 2.5.7
+msg_tool 2.5.8
+usr_msg 2.5.8
+segar 2.5.8
+segar_tool 2.5.8
+segar_thirdparty 2.5.8

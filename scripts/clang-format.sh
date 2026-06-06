@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ $# -lt 1 ]; then
     echo "usage: clang-format.sh {folder1} [folder2 ... folderN]"

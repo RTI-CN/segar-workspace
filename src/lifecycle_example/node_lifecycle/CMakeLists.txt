@@ -1,0 +1,1 @@
+add_example(node_lifecycle_demo src/node_lifecycle_demo.cc)

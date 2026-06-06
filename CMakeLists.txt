@@ -48,8 +48,28 @@ else()
 endif()
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 set(THIRD_PARTY_PREFIX "${CMAKE_SOURCE_DIR}/install/${PLATFORM_NAME}/third_party" CACHE PATH "Tool installation prefix")
-list(APPEND CMAKE_MODULE_PATH "${THIRD_PARTY_PREFIX}/share/cmake/segar")
+list(APPEND CMAKE_PREFIX_PATH "${THIRD_PARTY_PREFIX}")
 find_package(RtiSegar REQUIRED)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+set(SEGAR_PYTHON_VERSION
+    "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+set(SEGAR_PYTHON_PATH
+    "lib/python${SEGAR_PYTHON_VERSION}/site-packages/segar/python")
+
+# segar-transform ships SegarTransformConfig.cmake with find_dependency(RtiSegar), which
+# re-runs FindRtiSegar and collides with the existing rti_segar target. Load the exported
+# targets directly after RtiSegar is initialized.
+set(_SEGAR_TRANSFORM_TARGETS
+    "${THIRD_PARTY_PREFIX}/lib/cmake/SegarTransform/SegarTransformTargets.cmake")
+if(NOT EXISTS "${_SEGAR_TRANSFORM_TARGETS}")
+  message(FATAL_ERROR
+    "segar-transform CMake exports not found at ${_SEGAR_TRANSFORM_TARGETS}. "
+    "Ensure depend_libs.txt includes segar-transform and dependencies are installed.")
+endif()
+include("${_SEGAR_TRANSFORM_TARGETS}")
+
+# Build switch for integration test module.
+option(ENABLE_INTEGRATION_TEST "build segar integration tests" OFF)
 
 add_subdirectory(src)
 add_subdirectory(src_python)
@@ -58,7 +78,21 @@ install(PROGRAMS
   ${CMAKE_SOURCE_DIR}/scripts/start_all.sh
   ${CMAKE_SOURCE_DIR}/scripts/stop_all.sh
   ${CMAKE_SOURCE_DIR}/scripts/check_all.sh
-  ${CMAKE_SOURCE_DIR}/scripts/run_segar_cli.sh
+  ${CMAKE_SOURCE_DIR}/scripts/run_segar_cli_test.sh
   DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX}/)
+
+set(_LAUNCH_EXAMPLE_GEN_DIR "${CMAKE_BINARY_DIR}/gen/launch_example")
+file(MAKE_DIRECTORY "${_LAUNCH_EXAMPLE_GEN_DIR}")
+configure_file(
+  "${CMAKE_SOURCE_DIR}/src/launch_example/example.launch.in"
+  "${_LAUNCH_EXAMPLE_GEN_DIR}/example.launch"
+  @ONLY
+)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/launch_example/
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/launch_example
+        PATTERN "*.in" EXCLUDE)
+install(FILES "${_LAUNCH_EXAMPLE_GEN_DIR}/example.launch"
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/launch_example)

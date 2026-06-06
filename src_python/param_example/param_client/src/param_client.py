@@ -2,6 +2,7 @@
 
 import time
 
+from segar.proto import param_test_pb2
 from segar.python import parameter
 from segar.python import segar
 
@@ -18,6 +19,7 @@ def main():
     while segar.OK():
         out_int = parameter.OutValue()
         out_str = parameter.OutValue()
+        out_pb = parameter.OutValue()
 
         if not parameter.Segar_Get_Remote_Param(service_node, "p1_int", out_int, int):
             print("[param_client] waiting p1_int...")
@@ -27,8 +29,16 @@ def main():
             print("[param_client] waiting p2_string...")
             time.sleep(1.0)
             continue
+        if not parameter.Segar_Get_Remote_Param(service_node, "p3_pb", out_pb, param_test_pb2.Header):
+            print("[param_client] waiting p3_pb...")
+            time.sleep(1.0)
+            continue
 
         print(f"[param_client] p1_int={out_int.value} p2_string={out_str.value}")
+        print(
+            f"[param_client] p3_pb module_name={out_pb.value.module_name} "
+            f"points={len(out_pb.value.points)}"
+        )
 
         if not parameter.Segar_Load_Remote_Params(service_node, "/tmp/param_server.params"):
             print("[param_client] load remote params failed")

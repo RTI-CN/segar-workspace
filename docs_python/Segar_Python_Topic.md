@@ -1,21 +1,22 @@
-# Getting started with Segar Python Topic
+# Segar Python Topic 使用入门
 
-> Topic message definition follows `.msg` (ROS2 style IDL).
+> Topic 消息定义沿用 `.msg`（ROS2 风格 IDL）。
 
 ---
 
-## 1. Message definition
+## 1. 消息定义
 
-Example message:
+示例消息：
 
 ```text
 src/type_src/example/msg/String.msg
 ```
+
 ---
 
-## 2. Python interface main process
+## 2. Python 接口主流程
 
-Fixed main flow aligned with C++:
+与 C++ 对齐的固定主流程：
 
 1. `segar.Init("module_name")`
 2. `node = segar.CreateNode("node_name")`
@@ -24,13 +25,13 @@ Fixed main flow aligned with C++:
 
 ---
 
-## 3. Writer example
+## 3. Writer 示例
 
-Corresponding engineering module:
+对应工程模块：
 
 - `src_python/topic_example/topic_talker/src/topic_talker.py`
 
-Key calls:
+关键调用：
 
 ```python
 from example.msg import String
@@ -41,42 +42,45 @@ node = segar.CreateNode("topic_talker")
 writer = node.CreateWriter("/topic/chatter", String)
 writer.Write(String(data="hello"))
 ```
+
 ---
 
-## 4. Reader example
+## 4. Reader 示例
 
-Corresponding engineering module:
+对应工程模块：
 
 - `src_python/topic_example/topic_listener/src/topic_listener.py`
 
-Key calls:
+关键调用：
 
 ```python
 reader = node.CreateReader("/topic/chatter", String, on_msg)
 ```
-Callback signature:
+
+回调签名：
 
 ```python
 def on_msg(msg):
     print(msg.data)
 ```
+
 ---
 
-## 5. Optional configuration (opposite to C++ options)
+## 5. 可选配置（与 C++ options 对位）
 
 - `CreateWriter(..., options=...)`
 - `CreateReader(..., options=...)`
 
-Commonly used keys:
+常用键：
 
 - Writer: `qos_depth`, `qos_profile`, `history`, `depth`, `reliability`, `durability`
 - Reader: `pending_queue_size`, `qos_profile`, `history`, `depth`, `reliability`, `durability`
 
-`segar.WriterConfig` / `segar.ReaderConfig` can also be used.
+也可使用 `segar.WriterConfig` / `segar.ReaderConfig`。
 
 ---
 
-## 6. Operation mode
+## 6. 运行方式
 
 ```bash
 cd build_x86/output/src_python/topic_example/topic_listener

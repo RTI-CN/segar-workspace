@@ -1,0 +1,21 @@
+module_config {
+    module_library : "lib/libnode_g_component.so"
+    components {
+        component_class_name : "NodeGComponent"
+        config {
+            inner_node_name : "node_g"
+            readers {
+                topic: "NodeB"
+            }
+            readers {
+                topic: "NodeD"
+            }
+            readers {
+                topic: "NodeE"
+            }
+            readers {
+                topic: "NodeF"
+            }
+        }
+    }
+}

@@ -1,28 +1,30 @@
-# Segar ROS 2 Ecological Compatibility Tool
+# Segar ROS 2 Compatibility
 
-> **Note**: This section introduces the tools compatible with Segar and the ROS 2 ecosystem. It currently supports data analysis and visualization through tools such as Foxglove, and will expand support for other tools in the ros2 ecosystem in the future.
+> **说明**：本节介绍 Segar 与 ROS 2 生态的兼容工具，目前支持通过 Foxglove 等工具进行数据分析与可视化，后续会对ros2生态其他工具进行扩展支持
 
 ---
 
-## Foxglove Bridge
+## Foxglove 桥接
 
-### Usage steps
+### 使用步骤
 
-1. Refer to the environment variable setting chapter to complete the environment variable configuration (`source segar_setup.bash`)
-2. Run the following command to start the `segar_foxglove_bridge` bridge tool
-3. When you see `Foxglove bridge is running`, it means the program started successfully
-4. Start the Foxglove client and select **8765** as the connection port. No additional settings are required.
+1. 参考环境变量设置章节完成环境变量配置（`source segar_setup.bash`）
+2. 运行以下命令，启动 `segar_foxglove_bridge` 桥接工具
+3. 当看到 `Foxglove bridge is running` 时，表示程序启动成功
+4. 启动 Foxglove 客户端，连接端口选择 **8765**，无需再做额外设置
 
-### Start command
+### 启动命令
 
 ```bash
 segar_foxglove_bridge
 ```
-### Sample output
+
+### 示例输出
 
 ```text
 I0211 10:48:34.907411 4083683 foxglove_bridge_core.cc:73] [segar_foxglove_bridge]Foxglove bridge started on port 8765
 I0211 10:48:34.907438 4083683 main.cc:103] [segar_foxglove_bridge]Foxglove bridge is running. Connect to ws://localhost:8765
 I0211 10:48:34.907445 4083683 main.cc:104] [segar_foxglove_bridge]Press Ctrl+C to stop.
 ```
-Connection address: `ws://localhost:8765`. Press Ctrl+C to stop the bridge service.
+
+连接地址：`ws://localhost:8765`。按 Ctrl+C 可停止桥接服务。

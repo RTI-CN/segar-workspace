@@ -1,0 +1,10 @@
+param_server:
+  segar__parameters:
+    p1_int: 1
+    p2_string: test
+    p3_pb:
+      __proto_type__: rti.param.Header
+      module_name: py_param_server
+      points:
+        - {x: 1, y: 2}
+        - {x: 3, y: 4}

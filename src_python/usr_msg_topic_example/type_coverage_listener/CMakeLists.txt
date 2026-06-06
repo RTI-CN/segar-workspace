@@ -1,0 +1,1 @@
+add_python_example(type_coverage_listener src/type_coverage_listener.py)

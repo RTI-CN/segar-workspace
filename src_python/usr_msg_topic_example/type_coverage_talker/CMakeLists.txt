@@ -1,0 +1,1 @@
+add_python_example(type_coverage_talker src/type_coverage_talker.py)

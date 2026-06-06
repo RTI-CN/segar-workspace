@@ -1,191 +1,199 @@
-# Segar Bag User Manual
+# Segar Bag
 
-`segar bag` is used to record, playback and view topic data, based on MCAP format. This document introduces the usage of three subcommands: `record`, `play`, and `info`.
+`segar bag` 用于录制、回放和查看 topic 数据，基于 MCAP 格式。本文档介绍 `record`、`play`、`info` 三个子命令的用法。
 
-> In order to facilitate the migration of ros2 users, the `segar bag` command style is basically the same as `ros2 bag`
+> 为了方便ros2用户迁移，`segar bag`命令风格和 `ros2 bag`基本一致
 
 ---
 
-## 1. record (recording)
+## 一、record（录制）
 
-Record the data of the specified topic to the MCAP file.
+将指定 topic 的数据录制到 MCAP 文件。
 
-### Command format
+### 命令格式
 
 ```bash
 segar bag record [options]
 ```
-### Required conditions (choose one of two)
 
-| Options | Description |
+### 必选条件（二选一）
+
+| 选项 | 说明 |
 |------|------|
-| `-a, --all` | Record all topics |
-| `-t, --topics <topic>...` | Record the specified topic (multiple ones can be specified). Supports `topic:=type` format and also specifies message type (for ROS2, pre-subscription when there is no publisher) |
+| `-a, --all` | 录制所有 topics |
+| `-t, --topics <topic>...` | 录制指定 topic（可指定多个）。支持 `topic:=type` 格式同时指定消息类型（用于 ROS2、无 publisher 时预订阅） |
 
-### Optional parameters
+### 可选参数
 
-| Options | Description |
+| 选项 | 说明 |
 |------|------|
-| `-o, --output <dir>` | Output directory name, default `segar_bag_{timestamp}/` |
-| `-i, --segment-interval <seconds>` | Segment by time, generate new files every N seconds |
-| `-m, --segment-size <MB>` | Segment by size, generate new files every N MB |
-| `-h, --help` | Show help |
+| `-o, --output <dir>` | 输出目录名，默认 `segar_bag_{时间戳}/` |
+| `-i, --segment-interval <秒>` | 按时间分段，每 N 秒生成新文件 |
+| `-m, --segment-size <MB>` | 按大小分段，每 N MB 生成新文件 |
+| `-h, --help` | 显示帮助 |
 
-### Output description
+### 输出说明
 
-The recording results are output to the directory, and the files in the directory are named `{directory name}_0.mcap`, `{directory name}_1.mcap`, etc.
+录制结果输出到目录，目录内文件命名为 `{目录名}_0.mcap`、`{目录名}_1.mcap` 等。
 
-### Example
+### 示例
 
 ```bash
-# Record the specified topic and output it to my_bag/
+# 录制指定 topic，输出到 my_bag/
 segar bag record -t rt/topic/chatter_idl -o my_bag
 
-# Record multiple topics
+# 录制多个 topics
 segar bag record -t /topic_a /topic_b -o multi_bag
 
-# Record all topics and use the default output directory
+# 录制所有 topics，使用默认输出目录
 segar bag record -a
 
-# Use topic:=type to specify the message type (mainly used for recording ROS2 topic)
+# 用 topic:=type 指定消息类型（主要用于录制 ROS2 topic）
 segar bag record -t rt/chatter:=std_msgs::msg::String -o ros2_bag
-# Segment by 100MB
+# 按 100MB 分段
 segar bag record -t /chatter -o big_bag -m 100
 ```
-### topic:=type format description
 
-When recording a ROS2 topic, use `-t topic:=type` to specify both the topic name and the message type, for example:
+### topic:=type 格式说明
 
-- `-t rt/chatter:=std_msgs::msg::String`: record ROS2 `/chatter` bridge topic
+录制 ROS2 topic 时，使用 `-t topic:=type` 同时指定 topic 名与消息类型，例如：
+
+- `-t rt/chatter:=std_msgs::msg::String`：录制 ROS2 `/chatter` 桥接 topic
 ---
 
-## 2. play (playback)
+## 二、play（回放）
 
-Play back MCAP data from a recording file or directory.
+回放录制文件或目录中的 MCAP 数据。
 
-### Command format
+### 命令格式
 
 ```bash
 segar bag play <bag_path> [options]
 ```
-### Required parameters
 
-| Parameters | Description |
+### 必选参数
+
+| 参数 | 说明 |
 |------|------|
-| `bag_path` | Recording file path or directory path (positional parameter) |
+| `bag_path` | 录制文件路径或目录路径（位置参数） |
 
-Supports single file (such as `my_bag_0.mcap`) or directory (such as `my_bag/`, automatically expands `*_0.mcap`, `*_1.mcap`, etc.).
+支持单文件（如 `my_bag_0.mcap`）或目录（如 `my_bag/`，自动展开其中的 `*_0.mcap`、`*_1.mcap` 等）。
 
-### Optional parameters
+### 可选参数
 
-| Options | Description |
+| 选项 | 说明 |
 |------|------|
-| `-a, --all` | Replay all topics (default behavior) |
-| `-t, --topics <topic>...` | Play back only specified topics |
-| `-k, --black-topic <name>` | Exclude specified topics |
-| `-l, --loop` | Loop playback |
-| `-r, --rate <rate>` | Playback rate, default 1.0 |
-| `-b, --begin <time>` | Start time (such as 2018-07-01-00:00:00) |
-| `-e, --end <time>` | end time |
-| `-s, --start <seconds>` | Start from Nth second |
-| `-d, --latency <seconds>` | Delay in seconds before starting |
-| `-p, --preload <seconds>` | Preload duration |
-| `-m, --remap <old:=new>` | Topic remapping |
-| `-h, --help` | Show help |
+| `-a, --all` | 回放所有 topics（默认行为） |
+| `-t, --topics <topic>...` | 仅回放指定 topics |
+| `-k, --black-topic <name>` | 排除指定 topics |
+| `-l, --loop` | 循环回放 |
+| `-r, --rate <倍率>` | 回放倍率，默认 1.0 |
+| `-b, --begin <时间>` | 开始时间（如 2018-07-01-00:00:00） |
+| `-e, --end <时间>` | 结束时间 |
+| `-s, --start <秒>` | 从第 N 秒开始 |
+| `-d, --delay <秒>` | 开始前延时秒数 |
+| `-p, --preload <秒>` | 预加载时长 |
+| `-m, --remap <old:=new>` | Topic 重映射 |
+| `-h, --help` | 显示帮助 |
 
-### Example
+### 示例
 
 ```bash
-# Playback directory
+# 回放目录
 segar bag play my_bag
 
-# Play back a single file
+# 回放单文件
 segar bag play my_bag/my_bag_0.mcap
 
-# Only play back the specified topic, loop, 2x speed
+# 仅回放指定 topic，循环，2 倍速
 segar bag play my_bag -t rt/topic/chatter_idl -l -r 2.0
 
-# Topic remapping: publish /chatter to /remapped_chatter
+# Topic 重映射：将 /chatter 发布到 /remapped_chatter
 segar bag play my_bag -m /chatter:=/remapped_chatter
 ```
+
 ---
 
-## 3. info (view information)
+## 三、info（查看信息）
 
-View metadata and statistics for a recording file or directory.
+查看录制文件或目录的元数据和统计信息。
 
-### Command format
+### 命令格式
 
 ```bash
 segar bag info <path>
 ```
-### Parameters
 
-| Parameters | Description |
+### 参数
+
+| 参数 | 说明 |
 |------|------|
-| `path` | Recording file or directory path |
+| `path` | 录制文件或目录路径 |
 
-When a directory is passed in, the statistics of all `*_N.mcap` files in the directory will be summarized.
+传入目录时，会汇总目录内所有 `*_N.mcap` 文件的统计信息。
 
-### Output description
+### 输出说明
 
-- `record_file`: path
-- `version`: version
-- `duration`: duration (seconds)
-- `begin_time` / `end_time`: start and end time
-- `size`: file size
-- `is_complete`: whether it is complete
-- `message_number`: total number of messages
-- `topic_number`: topic number
-- `topic_info`: number and type of messages for each topic
+- `record_file`：路径
+- `version`：版本
+- `duration`：时长（秒）
+- `begin_time` / `end_time`：起止时间
+- `size`：文件大小
+- `is_complete`：是否完整
+- `message_number`：消息总数
+- `topic_number`：topic 数量
+- `topic_info`：各 topic 的消息数与类型
 
-### Example
+### 示例
 
 ```bash
-# View single file
+# 查看单文件
 segar bag info my_bag_0.mcap
 
-# View directory (summary statistics)
+# 查看目录（汇总统计）
 segar bag info my_bag
 ```
+
 ---
 
-## 4. Complete example: recording and playback ROS2 demo_nodes_cpp topic
+## 四、完整示例：录制与回放 ROS2 demo_nodes_cpp 话题
 
-> The MCAP recorded by segar bag is in a standard format and can be played and viewed using [Foxglove Studio](https://foxglove.dev/) and `ros2 bag`.
+> segar bag 录制的 MCAP 属于标准格式，可使用 [Foxglove Studio](https://foxglove.dev/) 和 `ros2 bag` 进行播放与包内容查看。
 
-The following takes the `demo_nodes_cpp` that comes with ROS 2 as an example to demonstrate how to use segar bag to record a ROS2 topic and play it back using segar bag and ros2 bag respectively.
+下面以 ROS 2 自带的 `demo_nodes_cpp` 为例，演示如何用 segar bag 录制 ROS2 topic，并分别用 segar bag 和 ros2 bag 回放。
 
-### 1. Recording
+### 1. 录制
 
-**Terminal 1**: Start ROS2 talker
-
+**终端 1**：启动 ROS2 talker
 ```bash
 ros2 run demo_nodes_cpp talker
 ```
-**Terminal 2**: Use segar bag to record `/chatter` (the topic name is `rt/chatter` after bridging)
 
+**终端 2**：用 segar bag 录制 `/chatter`（通过桥接后 topic 名为 `rt/chatter`）
 ```bash
 segar bag record -a -t rt/chatter:=std_msgs::msg::String -o ros2_demo_bag
-```After recording is completed, press Ctrl+C to stop. The output directory is `ros2_demo_bag/` and the file is `ros2_demo_bag_0.mcap`.
+```
+录制完成后按 Ctrl+C 停止，输出目录为 `ros2_demo_bag/`，文件为 `ros2_demo_bag_0.mcap`。
 
-### 2. Use segar bag to play back
+### 2. 用 segar bag 回放
 
 ```bash
 segar bag play ros2_demo_bag
-# Or specify a single file
+# 或指定单文件
 segar bag play ros2_demo_bag/ros2_demo_bag_0.mcap
 ```
-**Terminal 3** (optional): Start listener to receive playback data
 
+**终端 3**（可选）：启动 listener 接收回放数据
 ```bash
 ros2 run demo_nodes_cpp listener
 ```
-### 3. Use ros2 bag to play back
 
-MCAP files generated by segar bag can be played back directly using ros2 bag. The topic name on the ROS2 side is `/chatter`, and the recorded `rt/chatter` needs to be remapped:
+### 3. 用 ros2 bag 回放
+
+segar bag 生成的 MCAP 文件可直接用 ros2 bag 回放。ROS2 端 topic 名为 `/chatter`，需将录制的 `rt/chatter` 重映射：
 
 ```bash
 ros2 bag play ros2_demo_bag/ros2_demo_bag_0.mcap --remap rt/chatter:=/chatter
 ```
-> Note: `rt/chatter` is the topic name after segar bridging, `/chatter` is the ROS2 native topic name. After remapping through `--remap`, `ros2 run demo_nodes_cpp listener` can receive normally.
+
+> 说明：`rt/chatter` 为 segar 桥接后的 topic 名，`/chatter` 为 ROS2 原生 topic 名。通过 `--remap` 重映射后，`ros2 run demo_nodes_cpp listener` 可正常接收。

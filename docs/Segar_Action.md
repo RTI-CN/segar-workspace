@@ -1,64 +1,65 @@
-# Getting started with Action
+# Segar Action
 
-> **Note**: The contents of (optional configuration) or (optional reading) are not commonly used, please understand as appropriate.
+> **说明**：（可选配置）或（可选阅读）内容都不常用，请酌情了解。
 >
-> Getting started with Segar Topic and getting started with Segar Service have already introduced the general basic knowledge and will not repeat it in this article.
+> Segar Topic 和 Segar Service 已介绍过的通用基础知识，本文将不再重述。
 >
-> Action messages are defined in ROS 2-style `.action` files.
+> Action 消息采用 ROS 2 风格的 `.action` 文件定义。
 >
-> **Quick process**: Write `.action` → Write business code → Compile → Run ActionServer/ActionClient examples on both ends → CLI verification.
+> **快速流程**：编写 `.action` → 编写业务代码 → 编译 → 运行 ActionServer/ActionClient 两端示例 → CLI 验证。
 
 ---
 
-## 1. How to write .action file
+## 1. .action 文件怎么写
 
-### 1.1 File Location / Naming Convention / Type / Namespace
+### 1.1 文件位置 / 命名规范 / 类型 / Namespace
 
-File naming convention follows ROS 2 definition. For example, define a `LookUpTransform` action with namespace `example`:
+文件命名规范遵循 ROS 2 定义。例如定义一个命名空间为 `example` 的 `LookUpTransform` action：
 
 ```text
 src/type_src/example/action/LookUpTransform.action
 ```
-- Use CamelCase for filenames (e.g. `LookUpTransform.action`)
-- The name part of the `.action` file is the Segar Action type name
-- The directory of the `.action` file is the namespace, for example `LookUpTransform` corresponds to `namespace example::action;`
-- The syntax and usage are the same as ROS 2, and will not be introduced further.
+
+- 文件名使用 CamelCase（例如 `LookUpTransform.action`）
+- `.action` 文件的名字部分即为 Segar Action 类型名
+- `.action` 文件的目录即为 namespace，例如 `LookUpTransform` 对应 `namespace example::action;`
+- 语法及使用方式同 ROS 2，不再展开介绍
 
 ---
 
-## 2. Basic usage examples of C++ (non-Component usage)
+## 2. C++ 基本使用示例（非 Component 用法）
 
-The example is excerpted from `src/action_example/*/action_*.cc`, split into two examples: Server side and Client side.
+示例节选自 `src/action_example/*/action_*.cc`，拆分为 Server 端和 Client 端两个示例。
 
-### 2.1 Code description
+### 2.1 代码说明
 
-- **(required)** Contains automatically generated Action messages hpp file
-- **(required)** The `action_name` of both the sender and the receiver must be exactly the same (for example: `lookup_transform`)
-- **(required)** `rti::segar::Init(argv[0]);` is used to initialize Segar system functions
-- **(optional)** `rti::segar::WaitForShutdown();` is used to prevent the system main thread from exiting. Use Ctrl+C to exit.
+- **（必需）** 包含自动生成的 Action 消息 hpp 文件
+- **（必需）** 收发双方的 `action_name` 必须完全一致（例：`lookup_transform`）
+- **（必需）** `rti::segar::Init(argv[0]);` 用于初始化 Segar 系统功能
+- **（可选）** `rti::segar::WaitForShutdown();` 用于防止系统主线程退出，使用 Ctrl+C 可退出；如果退出前需要执行用户清理逻辑，可以传入 callback
 
-### 2.2 Server (Action Server, pure asynchronous)
+### 2.2 服务端（Action Server，纯异步）
 
-#### ActionServer\<T\>::Callbacks member description
+#### ActionServer\<T\>::Callbacks 成员说明
 
-- **on_goal**: Process the goal request of ActionClient, return `false` to reject the goal
-- **on_cancel**: Process the cancel request of ActionClient and return `false` to reject the user's cancel goal
-- **on_execute**: Process the goal message of ActionClient and decide how to respond as follows:
-  1. `PublishFeedback(goal_id, feedback)`: Publish the current progress
-  2. `CancelGoal(goal_id, result)`: Cancel the goal midway and send the midway result to the Client
-  3. `Succeed(goal_id, result)`: Process the goal successfully and send the final result to the Client
+- **on_goal**：处理 ActionClient 的 goal 请求，返回 `false` 表示拒绝该 goal
+- **on_cancel**：处理 ActionClient 的 cancel 请求，返回 `false` 表示拒绝该用户 cancel goal
+- **on_execute**：处理 ActionClient 的 goal 消息，自主决定如何做出以下响应：
+  1. `PublishFeedback(goal_id, feedback)`：发布当前进度
+  2. `CancelGoal(goal_id, result)`：中途取消 goal，并将中途 result 发给 Client
+  3. `Succeed(goal_id, result)`：成功处理 goal，并将最终 result 发给 Client
 
-#### CreateActionServer function description
+#### CreateActionServer 函数说明
 
-- **Template parameters**: action type defined in `.action` file
-- **Parameter 1**: action name
-- **Parameter 2**: Callbacks of ActionServer
-- **Parameter 3**: ActionOptions advanced properties (optional)
-- **Return value**: ActionServer object
+- **模板参数**：`.action` 文件定义的 action 类型
+- **参数 1**：action name
+- **参数 2**：ActionServer 的 Callbacks
+- **参数 3**：ActionOptions 高级属性（可选）
+- **返回值**：ActionServer 对象
 
-#### Server example
+#### 服务端示例
 
-(`src/action_example/action_server/src/action_server.cc`)
+（`src/action_example/action_server/src/action_server.cc`）
 
 ```cpp
 #include <atomic>
@@ -148,21 +149,22 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-#### Action Server Common ActionOptions Advanced Properties
 
-(Only the commonly used ones are introduced, sorted by common priority)
+#### Action Server 常用 ActionOptions 高级属性
 
-- **max_execute_concurrency**: The number of tasks that Action Server can execute concurrently
-- **max_active_goals**: The number of unfinished tasks that Action Server can cache
-- **feedback_mode**: The mode for transmitting feedback to Action Client. For reliability, choose `OptionalMode::RTPS`, and for efficiency, choose `OptionalMode::HYBRID`. Must be consistent with Action Client
-- **status_publish_period_sec**: The interval for transmitting status to Action Client. The smaller the size, the higher the real-time performance; the larger the size, the lower the resource usage.
-- **status_history_depth**: The cached history status size. If you need the full amount, increase the value. If you only need the latest one, set it to 1.
+（仅介绍常用的，按常用优先级排序）
+
+- **max_execute_concurrency**：Action Server 能并发执行的任务个数
+- **max_active_goals**：Action Server 能缓存的未完成任务个数
+- **feedback_mode**：向 Action Client 传输 feedback 的模式。要可靠选 `OptionalMode::RTPS`，要效率选 `OptionalMode::HYBRID`。必须和 Action Client 端一致
+- **status_publish_period_sec**：向 Action Client 传输 status 的间隔。越小实时性越高，越大资源占用越低
+- **status_history_depth**：缓存的历史状态大小，需要全量的就增大数值，只需要当前最新的就设置为 1
 
 ```cpp
 rti::segar::action::ActionOptions action_options;
 action_options.feedback_mode = OptionalMode::RTPS;
 action_options.status_mode = OptionalMode::HYBRID;
-action_options.get_result_qos = QoSProfileConf::QOS_PROFILE_TF_STATIC;
+action_options.get_result_qos = QosProfileConf::QOS_PROFILE_TF_STATIC;
 action_options.status_publish_period_sec = 0.1;
 action_options.terminal_state_retention_sec = 10.0;
 action_options.max_active_goals = 256;
@@ -170,40 +172,41 @@ action_options.max_execute_concurrency = 8;
 
 server = node->CreateActionServer<LookUpTransform>("lookup_transform", callbacks, action_options);
 ```
-### 2.3 Client (Action Client, synchronous mode)
 
-#### ActionClient\<T\>::GoalCallbacks member description
+### 2.3 客户端（Action Client，同步模式）
 
-- **on_accept**: Handles Ack Response received from ActionServer. `true`: ActionServer accepts the Goal request; `false`: ActionServer rejects the Goal request
-- **on_result**: This function only takes effect in asynchronous mode and will be ignored in synchronous mode (using `SyncSendGoal`). Process the final Result received from ActionServer, and use the status parameter to obtain the Result in which of the following states: `STATUS_SUCCEEDED`, `STATUS_CANCELED`, `STATUS_ABORTED`
-- **on_cancel**: Handle the Cancel processing status results received from ActionServer (`ERROR_REJECTED`, `ERROR_UNKNOWN_GOAL`, `ERROR_TIMEOUT`, `ERROR_NOT_CANCELABLE`, `SUCCESS_REQUESTED`)
-- **on_feedback**: Handle Feedback messages received from ActionServer
+#### ActionClient\<T\>::GoalCallbacks 成员说明
 
-#### CreateActionClient function description
+- **on_accept**：处理从 ActionServer 收到的 Ack Response 回复。`true`：ActionServer 接受该 Goal 请求；`false`：ActionServer 拒绝该 Goal 请求
+- **on_result**：该函数仅在异步模式下生效，同步模式（使用 `SyncSendGoal`）下将被忽略。处理从 ActionServer 收到的最终 Result，通过 status 参数获得该 Result 在以下哪种状态下获得的：`STATUS_SUCCEEDED`、`STATUS_CANCELED`、`STATUS_ABORTED`
+- **on_cancel**：处理从 ActionServer 收到的 Cancel 处理状态结果（`ERROR_REJECTED`、`ERROR_UNKNOWN_GOAL`、`ERROR_TIMEOUT`、`ERROR_NOT_CANCELABLE`、`SUCCESS_REQUESTED`）
+- **on_feedback**：处理从 ActionServer 收到的 Feedback 消息
 
-- **Template parameters**: action type defined in `.action` file
-- **Parameter 1**: action name
-- **Parameter 2**: GoalCallbacks, subsequent `SendGoal`, `SyncSendGoal`, `CancelGoal` all use the callbacks defined by this parameter, and can be additionally covered on this basis
-- **Parameter 3**: ActionOptions advanced properties (optional)
-- **Return value**: ActionClient object
+#### CreateActionClient 函数说明
 
-#### SyncSendGoal synchronization function description
+- **模板参数**：`.action` 文件定义的 action 类型
+- **参数 1**：action name
+- **参数 2**：GoalCallbacks，后续的 `SendGoal`、`SyncSendGoal`、`CancelGoal` 都使用该参数定义的 callbacks，可在此基础上额外覆盖
+- **参数 3**：ActionOptions 高级属性（可选）
+- **返回值**：ActionClient 对象
 
-- **Parameter 1**: Goal object to be sent
-- **Parameter 2**: The unique GoalID that marks the Goal obtained after sending
-- **Parameter 3**: GoalCallbacks (merged with global callbacks when created, the priority defined in this parameter is higher)
-- **Return value**: `true` means the Goal is successfully sent and the response is received and the ActionServer accepts the Goal; `false` means otherwise
+#### SyncSendGoal 同步函数说明
 
-#### WaitForResult synchronization function description
+- **参数 1**：要发送的 Goal 对象
+- **参数 2**：发送后得到的唯一标记该 Goal 的 GoalID
+- **参数 3**：GoalCallbacks（与创建时的全局 callbacks 合并，该参数内定义的优先级更高）
+- **返回值**：`true` 表示成功发送 Goal 且收到 response 且 ActionServer 接受了该 Goal；`false` 表示 otherwise
 
-- **Parameter 1**: GoalID generated by `SyncSendGoal`
-- **Parameter 2**: Object reference to store the final Result
-- **Parameter 3**: Process the Result callback and obtain the Result status (`STATUS_SUCCEEDED`, `STATUS_CANCELED`, `STATUS_ABORTED`) through the status parameter
-- **Return value**: `true` means that the final Result is obtained on time; `false` means that the Result is obtained after a timeout
+#### WaitForResult 同步函数说明
 
-#### Synchronization client example
+- **参数 1**：`SyncSendGoal` 生成的 GoalID
+- **参数 2**：存储最终 Result 的对象引用
+- **参数 3**：存储 Result 状态的对象引用，可得到 `STATUS_SUCCEEDED`、`STATUS_CANCELED`、`STATUS_ABORTED`
+- **返回值**：`true` 表示按时获取到最终 Result；`false` 表示获取 Result 超时
 
-(`src/action_example/action_client_sync/src/action_client_sync.cc`)
+#### 同步客户端示例
+
+（`src/action_example/action_client_sync/src/action_client_sync.cc`）
 
 ```cpp
 #include <chrono>
@@ -230,7 +233,7 @@ void SyncCancelAfterSendGoal(ActionClientSPtr& client, const int32_t index) {
 
   AINFO << "[Sync] Goal sent: iteration=" << index << ", goal_id="
         << rti::segar::action::internal::GoalIDToString(goal_id);
-// Wait for goal to actually start execution
+  // 等待 goal 真正开始执行
   rti::segar::SleepFor(std::chrono::milliseconds(50));
   if (!client->SyncCancelGoal(goal_id)) {
     AERROR << "[Sync] CancelGoal failed, goal_id="
@@ -284,7 +287,7 @@ int main(int argc, char* argv[]) {
   uint32_t index = 0;
   auto callback = [&client, &index]() {
     index++;
-//Cancel the currently sent goal every 5 times
+    // 每隔 5 次取消当前发送的 goal
     if (index > 0 && index % 2 == 0) {
       SyncCancelAfterSendGoal(client, index);
       return;
@@ -300,37 +303,39 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-#### Action Client Common ActionOptions Advanced Properties
 
-(Only the commonly used ones are introduced, sorted by common priority)
+#### Action Client 常用 ActionOptions 高级属性
 
-- **rpc_timeout_ms**: Action Client waits for Action Server to reply to the Ack timeout of Goal/Cancel/Result request.
-- **feedback_mode**: The mode for transmitting feedback to Action Server. Must be consistent with Action Server side
-- **wait_server_timeout_ms**: Maximum negotiation time to wait to establish a connection with ActionServer service discovery
-- **wait_result_timeout_ms**: After completing the handshake set by the goal with the ActionServer, the timeout time to obtain the final result
+（仅介绍常用的，按常用优先级排序）
+
+- **rpc_timeout_ms**：Action Client 等待 Action Server 回复 Goal/Cancel/Result request 的 Ack 超时时间
+- **feedback_mode**：向 Action Server 传输 feedback 的模式。必须和 Action Server 端一致
+- **wait_server_timeout_ms**：等待与 ActionServer 服务发现建立连接的最大协商时间
+- **wait_result_timeout_ms**：在与 ActionServer 完成 goal 设定的握手后，获取最终 result 的超时时间
 
 ```cpp
 rti::segar::action::ActionOptions action_options;
 action_options.feedback_mode = OptionalMode::RTPS;
 action_options.status_mode = OptionalMode::HYBRID;
-action_options.get_result_qos = QoSProfileConf::QOS_PROFILE_TF_STATIC;
+action_options.get_result_qos = QosProfileConf::QOS_PROFILE_TF_STATIC;
 action_options.wait_server_timeout_ms = 5000.0;
 action_options.wait_result_timeout_ms = 10000.0;
 
 client = node->CreateActionClient<LookUpTransform>("lookup_transform", callbacks, action_options);
 ```
-### 2.4 Client (Action Client, asynchronous mode)
 
-#### AsyncSendGoal asynchronous function description
+### 2.4 客户端（Action Client，异步模式）
 
-- **Parameter 1**: Goal object to be sent
-- **Parameter 2**: The unique GoalID that marks the Goal obtained after sending
-- **Parameter 3**: GoalCallbacks (merged with global callbacks when created, the priority defined in this parameter is higher)
-- **Return value**: `true` means the Goal is sent successfully; `false` means the sending fails (an effective link based on service discovery cannot be established with ActionServer)
+#### AsyncSendGoal 异步函数说明
 
-#### Asynchronous client example
+- **参数 1**：要发送的 Goal 对象
+- **参数 2**：发送后得到的唯一标记该 Goal 的 GoalID
+- **参数 3**：GoalCallbacks（与创建时的全局 callbacks 合并，该参数内定义的优先级更高）
+- **返回值**：`true` 表示成功发送 Goal；`false` 表示发送失败（无法和 ActionServer 建立基于服务发现的有效链路）
 
-(`src/action_example/action_client_async/src/action_client_async.cc`)
+#### 异步客户端示例
+
+（`src/action_example/action_client_async/src/action_client_async.cc`）
 
 ```cpp
 #include <chrono>
@@ -369,7 +374,7 @@ int main(int argc, char* argv[]) {
           << ", transform=" << result.transform() << ", error=" << result.error();
   };
 
-//Register cancel callback
+  // 注册 cancel 回调
   callbacks.on_cancel = [](ActionClient& /*client*/, const GoalID& goal_id,
                            rti::segar::action::CancelResponseCode code) {
     AINFO << "[Async] Cancel response: goal_id="
@@ -394,9 +399,9 @@ int main(int argc, char* argv[]) {
     AINFO << "[Async] Goal sent: iteration=" << index << ", goal_id="
           << rti::segar::action::internal::GoalIDToString(goal_id);
 
-//Cancel the currently sent goal every other time
+    // 每隔一次取消当前发送的 goal
     if (index > 0 && index % 5 == 0) {
-// Wait for a while to give feedback a chance to be received
+      // 等待一段时间让 feedback 有机会被接收
       rti::segar::SleepFor(std::chrono::milliseconds(30));
       AINFO << "[Async] Cancelling goal: goal_id="
             << rti::segar::action::internal::GoalIDToString(goal_id);
@@ -414,11 +419,12 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
+
 ---
 
-## 3. CLI debugging
+## 3. CLI 调试
 
-The `segar action` command can be used to query Action (for detailed functions, please refer to the Segar CLI Getting Started Document):
+`segar action` 命令可用于查询 Action（详细功能请参见 Segar CLI 文档）：
 
 ```bash
 $ segar action

@@ -1,24 +1,29 @@
-# Getting started with Parameter
+# Segar Parameter
 
-> **Note**: The contents of (optional configuration) or (optional reading) are not commonly used, please understand as appropriate.
+> **说明**：（可选配置）或（可选阅读）内容都不常用，请酌情了解。
 >
-> The general basic knowledge of Segar Topic, Service, and Action has been introduced in the introduction and will not be repeated in this article.
+> Segar Topic、Segar Service、Segar Action 已介绍过的通用基础知识，本文将不再重述。
 >
-> Parameter supports basic types (int, string, etc.) and Protobuf message types, and custom structures are defined through `.proto` files.
+> Parameter 支持基本类型（int、string 等）和 Protobuf 消息类型，自定义结构通过 `.proto` 文件定义。
 >
-> **Quick process**: Write `.proto` (optional) → Write params configuration → Write business code → Compile → Run param_server/param_client example → CLI verification.
+> **快速流程**：编写 `.proto`（可选）→ 编写 params 配置 → 编写业务代码 → 编译 → 运行 param_server/param_client 示例 → CLI 验证。
 
 ---
 
-## 1. Parameter type and configuration
+## 1. 参数类型与配置
 
-### 1.1 Basic types and Protobuf types
+### 1.1 基本类型与 Protobuf 类型
 
-- **Basic types**: int, string, double, etc., can be used directly
-- **Protobuf type**: defined through `.proto` file, such as `Header` message in `param_example.proto`
-- **Configuration file**: Load parameters using YAML format, such as `config/params.yaml`
+- **基本类型**：int、string、double 等，可直接使用
+- **Protobuf 类型**：通过 `.proto` 文件定义，workspace 示例统一放在 `src/type_src/segar/proto/` 下，例如 `param_example.proto` 中的 `Header` 消息
+- **参数配置文件**：使用 YAML 格式加载参数。默认命名规则是 `${RTI_PARAM_PATH}/<node_name>.yaml -> ${SEGAR_PATH}/config/<node_name>.yaml`
+  - 普通 `Node` 默认查找 `${RTI_PARAM_PATH}/<node_name>.yaml`，未命中再查找 `${SEGAR_PATH}/config/<node_name>.yaml`
+  - `Component` 使用.dag配置文件中的 `inner_node_name` ，查找规则与普通 `Node` 一致
+  - 通过 `CreateNode(..., param_path)` 显式指定参数文件时，绝对路径按原路径读取；相对路径基于 `${SEGAR_PATH}` 解析
+- **与 gflags 的区别**：`Parameter` 适合做跨 node / 跨进程查询与设置；`gflags` 只适合当前进程内的全局运行开关
 
-### 1.2 params.yaml example
+
+### 1.2 `<node_name>.yaml` 示例
 
 ```yaml
 param_server:
@@ -31,45 +36,46 @@ param_server:
       timestamp_sec: 1234.56
       sequence_num: 1
 ```
-### 1.3 Naming convention
 
-- Parameter names are unique within the node
-- Protobuf type needs to be specified in YAML `__proto_type__` is the complete proto type name (such as `param.example.Header`)
+### 1.3 命名规范
+
+- 参数名在节点内唯一
+- Protobuf 类型需在 YAML 中指定 `__proto_type__` 为完整 proto 类型名（如 `param.example.Header`）
 
 ---
 
-## 2. Basic usage examples of C++ (non-Component usage)
+## 2. C++ 基本使用示例（非 Component 用法）
 
-The example is excerpted from `src/param_example/` and split into two examples: param_server (local parameters) and param_client (remote parameters).
+示例节选自 `src/param_example/`，拆分为 param_server（本地参数）和 param_client（远程参数）两个示例。
 
-### 2.1 Code description
+### 2.1 代码说明
 
-- **(required)** Contains the parameter API header file `segar/parameter/segar_parameter_api.h`
-- **(required)** Local parameters need to specify node; remote parameters need to specify the target `node_name` (for example: `param_server`)
-- **(required)** `rti::segar::Init(argv[0]);` is used to initialize Segar system functions
-- **(optional)** `rti::segar::WaitForShutdown();` is used to prevent the system main thread from exiting. Use Ctrl+C to exit.
-- **Running order**: run param_server first, then param_client
+- **（必需）** 包含参数 API 头文件 `segar/parameter/segar_parameter_api.h`
+- **（必需）** 本地参数需指定 node；远程参数需指定目标 `node_name`（例：`param_server`）
+- **（必需）** `rti::segar::Init(argv[0]);` 用于初始化 Segar 系统功能
+- **（可选）** `rti::segar::WaitForShutdown();` 用于防止系统主线程退出，使用 Ctrl+C 可退出；如果退出前需要执行用户清理逻辑，可以传入 callback
+- **运行顺序**：先运行 param_server，再运行 param_client
 
-### 2.2 Server (Parameter Server, local parameters)
+### 2.2 服务端（Parameter Server，本地参数）
 
-#### Local parameter API description
+#### 本地参数 API 说明
 
-- **Segar_Load_Local_Params**: Load parameters from YAML or dump file to node
-- **Segar_Set_Local_Param**: Set local parameters (supports int, string, Protobuf, etc.)
-- **Segar_Get_Local_Param**: Get local parameters
-- **Segar_List_Local_Params**: List all local parameters
-- **Segar_Dump_Local_Params**: Save local parameters to file
+- **Segar_Load_Local_Params**：从 YAML 或 dump 文件加载参数到节点
+- **Segar_Set_Local_Param**：设置本地参数（支持 int、string、Protobuf 等）
+- **Segar_Get_Local_Param**：获取本地参数
+- **Segar_List_Local_Params**：列出所有本地参数
+- **Segar_Dump_Local_Params**：将本地参数保存到文件
 
-#### Server example
+#### 服务端示例
 
-(`src/param_example/param_server/src/param_server.cc`)
+（`src/param_example/param_server/src/param_server.cc`）
 
 ```cpp
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "param_example.pb.h"
+#include "segar/proto/param_example.pb.h"
 
 #include "segar/parameter/segar_parameter_api.h"
 #include "segar/segar.h"
@@ -82,14 +88,14 @@ int main(int argc, char* argv[]) {
 
   using Parameter = rti::segar::Parameter;
 
-//Load local parameters
-  RETURN_VAL_IF(!Segar_Load_Local_Params(node, "config/params.yaml"),
+  // 加载本地参数
+  RETURN_VAL_IF(!Segar_Load_Local_Params(node, "config/param_server.yaml"),
                 EXIT_FAILURE);
   AINFO << "Parameter server started successfully";
 
   AINFO << "=== Testing Local Parameter API ===";
 
-// List local parameters
+  // 列出本地参数
   std::vector<Parameter> parameter_list;
   RETURN_VAL_IF(!Segar_List_Local_Params(node, &parameter_list), EXIT_FAILURE);
   AINFO << "Initial local parameters count: " << parameter_list.size();
@@ -97,7 +103,7 @@ int main(int argc, char* argv[]) {
     AINFO << "param: " << param.DebugString();
   }
 
-//Set local parameters
+  // 设置本地参数
   RETURN_VAL_IF(!Segar_Set_Local_Param(node, "p1_int", 1), EXIT_FAILURE);
   RETURN_VAL_IF(!Segar_Set_Local_Param(node, "p2_string", "test"),
                 EXIT_FAILURE);
@@ -108,7 +114,7 @@ int main(int argc, char* argv[]) {
   header.set_sequence_num(1);
   RETURN_VAL_IF(!Segar_Set_Local_Param(node, "p3_pb", header), EXIT_FAILURE);
 
-// Get local parameters
+  // 获取本地参数
   int int_val = 0;
   RETURN_VAL_IF(!Segar_Get_Local_Param(node, "p1_int", &int_val), EXIT_FAILURE);
   AINFO << "p1_int: " << int_val;
@@ -126,14 +132,14 @@ int main(int argc, char* argv[]) {
   RETURN_VAL_IF(!Segar_Get_Local_Param(node, "p3_pb", header_sp), EXIT_FAILURE);
   AINFO << "header_sp: " << header_sp->DebugString();
 
-// List local parameters again
+  // 再次列出本地参数
   RETURN_VAL_IF(!Segar_List_Local_Params(node, &parameter_list), EXIT_FAILURE);
   AINFO << "After setting, local parameters count: " << parameter_list.size();
   for (const auto& param : parameter_list) {
     AINFO << "param: " << param.DebugString();
   }
 
-//Save local parameters
+  // 保存本地参数
   RETURN_VAL_IF(!Segar_Dump_Local_Params(node, "/tmp/param_server.params"),
                 EXIT_FAILURE);
   AINFO << "Local parameters dumped to /tmp/param_server.params";
@@ -142,26 +148,27 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
-### 2.3 Client (Parameter Client, remote parameters)
 
-#### Remote parameter API description
+### 2.3 客户端（Parameter Client，远程参数）
 
-- **Segar_Get_Remote_Param**: Get parameters from the remote parameter server of the specified node
-- **Segar_Set_Remote_Param**: Set remote parameters (if supported)
-- **Segar_List_Remote_Params**: List all parameters of the remote node
-- **Segar_Dump_Remote_Params**: Save remote parameters to file
-- **Segar_Load_Remote_Params**: Load parameters in the file to the remote node
+#### 远程参数 API 说明
 
-#### Client example
+- **Segar_Get_Remote_Param**：从指定节点的远程参数服务器获取参数
+- **Segar_Set_Remote_Param**：设置远程参数（若支持）
+- **Segar_List_Remote_Params**：列出远程节点的所有参数
+- **Segar_Dump_Remote_Params**：将远程参数保存到文件
+- **Segar_Load_Remote_Params**：将文件中的参数加载到远程节点
 
-(`src/param_example/param_client/src/param_client.cc`)
+#### 客户端示例
+
+（`src/param_example/param_client/src/param_client.cc`）
 
 ```cpp
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "param_example.pb.h"
+#include "segar/proto/param_example.pb.h"
 
 #include "segar/parameter/segar_parameter_api.h"
 #include "segar/segar.h"
@@ -179,7 +186,7 @@ int main(int argc, char* argv[]) {
 
   const std::string node_name = "param_server";
 
-// Get remote parameters
+  // 获取远程参数
   int int_val = 0;
   RETURN_VAL_IF(!Segar_Get_Remote_Param(node_name, "p1_int", &int_val),
                 EXIT_FAILURE);
@@ -200,12 +207,12 @@ int main(int argc, char* argv[]) {
                 EXIT_FAILURE);
   AINFO << "header_sp: " << header_sp->DebugString();
 
-//Load remote parameters
+  // 加载远程参数
   RETURN_VAL_IF(
       !Segar_Load_Remote_Params(node_name, "/tmp/param_server.params"),
       EXIT_FAILURE);
 
-// List remote parameters
+  // 列出远程参数
   std::vector<Parameter> parameter_list;
   RETURN_VAL_IF(!Segar_List_Remote_Params(node_name, &parameter_list),
                 EXIT_FAILURE);
@@ -214,7 +221,7 @@ int main(int argc, char* argv[]) {
     AINFO << "param: " << param.DebugString();
   }
 
-//Save remote parameters
+  // 保存远程参数
   RETURN_VAL_IF(
       !Segar_Dump_Remote_Params(node_name, "/tmp/param_server.params"),
       EXIT_FAILURE);
@@ -224,11 +231,12 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 ```
+
 ---
 
-## 3. CLI debugging
+## 3. CLI 调试
 
-The `segar param` command can be used to query and set Parameter (for detailed functions, please refer to the Segar CLI Getting Started Document):
+`segar param` 命令可用于查询和设置 Parameter（详细功能请参见 Segar CLI 文档）：
 
 ```bash
 segar param

@@ -1,0 +1,9 @@
+module_config {
+    module_library : "third_party/lib/libtracing_node_component.so"
+    components {
+        component_class_name : "rti::segar::TracingNodeComponent"
+        config {
+            inner_node_name : "tracing_node"
+        }
+    }
+}

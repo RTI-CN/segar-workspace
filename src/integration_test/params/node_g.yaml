@@ -1,0 +1,12 @@
+node_g:
+  segar__parameters:
+    p1_int: 7
+    p2_string: node_g
+    payload_kb: 64
+    enable_param_test: true
+    p3_pb:
+      __proto_type__: rti.param.Header
+      module_name: param_timer
+      points:
+        - {x: 1, y: 2}
+        - {x: 3, y: 4}

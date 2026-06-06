@@ -5,10 +5,16 @@
 set -e
 
 # Process names corresponding to demos started by start_all.sh
-# Linux comm is limited to 15 chars; use `pgrep -f` for longer names
+# Notes:
+# - Linux comm is limited to 15 chars, so `pgrep -x` is not reliable for long names (can collide).
+# - We use `pgrep -f -a` and filter to the real binary argv0, excluding launch scripts.
 PROCESS_NAMES=(
   topic_talker
   topic_listener
+  transform_broadcaster
+  transform_static_broadcaster
+  transform_listener
+  transform_static_listener
   service_server
   service_client_sync
   service_client_async
@@ -17,19 +23,29 @@ PROCESS_NAMES=(
   action_server
   action_client_sync
   action_client_async
-  tasker
+  wait_event_talker
+  wait_event_listener
 )
 PROCESS_PATTERNS=( "timer.dag|timer_component" "common.dag|common_component" "sync.dag|sync_component" )
+
+find_pids_for_name() {
+  local name="$1"
+  # Output: one PID per line (may be empty)
+  pgrep -f -a "$name" 2>/dev/null | awk -v n="$name" '
+    {
+      pid=$1
+      cmd=substr($0, index($0,$2))
+      if (cmd ~ /launch\.sh/) next
+      if (cmd ~ ("(^|.*/)" n "([[:space:]]|$)")) print pid
+    }
+  ' || true
+}
 
 running=0
 exited=0
 echo "---"
 for name in "${PROCESS_NAMES[@]}"; do
-  if [ ${#name} -gt 15 ]; then
-    pids=$(pgrep -f "$name" 2>/dev/null || true)
-  else
-    pids=$(pgrep -x "$name" 2>/dev/null || true)
-  fi
+  pids=$(find_pids_for_name "$name")
   if [ -n "$pids" ]; then
     echo "$name $pids"
     running=$((running + 1))

@@ -1,24 +1,24 @@
-# Getting started with Segar Python Parameter
+# Segar Python Parameter 使用入门
 
 ---
 
-## 1. Interface location
+## 1. 接口位置
 
-The parameter API is located at:
+参数 API 位于：
 
 - `from segar.python import parameter`
 
-Naming maintains the Segar prefix style (`Segar_*`) with the C++ side.
+命名与 C++ 侧保持 Segar 前缀风格（`Segar_*`）。
 
 ---
 
-## 2. Local parameters (Server side)
+## 2. 本地参数（Server 侧）
 
-Corresponding engineering module:
+对应工程模块：
 
 - `src_python/param_example/param_server/src/param_server.py`
 
-Commonly used interfaces:
+常用接口：
 
 - `Segar_Load_Local_Params(node, yaml_file)`
 - `Segar_Set_Local_Param(node, param_name, value)`
@@ -28,13 +28,13 @@ Commonly used interfaces:
 
 ---
 
-## 3. Remote parameters (Client side)
+## 3. 远程参数（Client 侧）
 
-Corresponding engineering module:
+对应工程模块：
 
 - `src_python/param_example/param_client/src/param_client.py`
 
-Commonly used interfaces:
+常用接口：
 
 - `Segar_Get_Remote_Param(service_node_name, param_name, out_value, value_type)`
 - `Segar_Set_Remote_Param(service_node_name, param_name, value)`
@@ -44,9 +44,9 @@ Commonly used interfaces:
 
 ---
 
-## 4. OutValue usage
+## 4. OutValue 用法
 
-`Segar_Get_*_Param` uses output parameter style:
+`Segar_Get_*_Param` 使用输出参数风格：
 
 ```python
 from segar.python import parameter
@@ -56,11 +56,12 @@ ok = parameter.Segar_Get_Remote_Param("param_server", "p1_int", out_int, int)
 if ok:
     print(out_int.value)
 ```
+
 ---
 
-## 5. YAML configuration example
+## 5. YAML 配置示例
 
-`src_python/param_example/param_server/config/params.yaml`:
+`src_python/param_example/param_server/config/param_server.yaml`：
 
 ```yaml
 param_server:
@@ -68,9 +69,10 @@ param_server:
     p1_int: 1
     p2_string: test
 ```
+
 ---
 
-## 6. Operation mode
+## 6. 运行方式
 
 ```bash
 cd build_x86/output/src_python/param_example/param_server

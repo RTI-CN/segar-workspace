@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="/home/simon/segar/Segar2"
-OUT="${ROOT}/build_x86/output"
-LAUNCH_FILE="${ROOT}/temp.launch"
-LAUNCHER="${ROOT}/segar/tools/segar_launch/segar_launch.py"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+OUT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+LAUNCH_FILE="${SCRIPT_DIR}/example.launch"
+LAUNCHER="${SCRIPT_DIR}/segar_launch.py"
 
 case "${1:-start}" in
   start)
-    source "${OUT}/setup.bash"
+    source "${OUT}/segar_setup.bash"
     python3 "${LAUNCHER}" start "${LAUNCH_FILE}"
     ;;
   stop)
-    source "${OUT}/setup.bash"
+    source "${OUT}/segar_setup.bash"
     python3 "${LAUNCHER}" stop "${LAUNCH_FILE}"
     ;;
   status)

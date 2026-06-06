@@ -1,151 +1,168 @@
-# Segar/ROS2 Topic performance comparison test report (x86 platform)
+# Segar/ROS2 Topic性能对比测试报告（x86平台）
 
 ---
 
-## 1. Test Overview
+## 一、测试概述
 
-This test focuses on the core performance of ROS2 middleware and Segar middleware in Topic communication scenarios. Through the Ping-Pong communication mode, the **throughput** (message throughput, bandwidth throughput) and **latency** (average latency, minimum latency, maximum latency) indicators of the two middlewares are compared when transmitting different amounts of data, providing objective data support for middleware selection. Specific goals include:
+本次测试聚焦 ROS2 中间件与 Segar 中间件在 Topic 通信场景下的核心性能表现，通过 Ping-Pong 通信模式，对比两种中间件在不同数据量传输时的**吞吐量**（消息吞吐量、带宽吞吐量）和**延时**（平均延时、最小延时、最大延时）指标，为中间件选型提供客观数据支撑。具体目标包括：
 
-- Verify **Message Throughput**: The number of messages that the middleware can transmit per unit time (msg/s)
-- Verify **Bandwidth Throughput**: The total number of bytes that the middleware can transfer per unit time (MB/s)
-- Validation **Round Trip Delay**: Complete link latency (RTT) from send to receive
-- Verify **Delay Stability**: the fluctuation range of minimum latency and maximum latency
-- Verify **Large Data Volume Transmission Performance**: Performance under 1MB super large data volume
-- Verify **Full range performance robustness**: Performance consistency in each data volume range from 64B to 1MB
+- 验证**消息吞吐量**：单位时间内中间件可传输的消息数量(msg/s)
+- 验证**带宽吞吐量**：单位时间内中间件可传输的字节总量(MB/s)
+- 验证**往返延时**：从发送到接收的完整链路延迟(RTT)
+- 验证**延时稳定性**：最小延时与最大延时的波动范围
+- 验证**大数据量传输性能**：在1MB超大数据量下的性能表现
+- 验证**全区间性能稳健性**：从64B到1MB各数据量区间的性能一致性
 
 ---
 
-## 2. Test environment
+## 二、测试环境
 
-| Dimensions | Configuration instructions |
+| 维度 | 配置说明 |
 |------|----------|
-| Hardware | x86_64 (28-core CPU) |
-| OS & Kernel | ubuntu22.04 (linux) |
-| ROS2 version | Humble |
-| Segar version | V2.0.0 |
+| 硬件 | x86_64  (28核 CPU) |
+| OS & 内核 | ubuntu22.04（linux） |
+| ROS2 版本 | Humble |
+| Segar 版本 | V2.0.0 |
 
 ---
 
-## 3. Test design and topology
+## 三、测试设计与拓扑结构
 
-The test uses the **Ping-Pong mode** of "publisher-subscriber" two-way communication:
+测试采用"发布端-订阅端"双向通信的 **Ping-Pong 模式**：
 
-- **Publishing end node A**: Generate messages according to the configured data amount and send them to node B. After receiving the response message from node B, the next message will be sent immediately, and the sending timestamp and receiving timestamp will be recorded at the same time for indicator calculation;
-- **Subscriber Node B**: Subscribe to the Topic sent by Node A, do not perform any business logic processing after receiving the message, and immediately return the original message to Node A, ensuring that the latency only comes from middleware communication overhead.
+- **发布端节点A**：按配置数据量生成消息并发送至节点B，接收节点B的响应消息后立即发送下一条消息，同时记录发送时间戳与接收时间戳，用于指标计算；
+- **订阅端节点B**：订阅节点A发送的Topic，收到消息后不做任何业务逻辑处理，立即将原消息返回至节点A，确保延时仅来自中间件通信开销。
 
-The system includes the following core testing mechanisms:
+系统包含以下核心测试机制：
 
-- **Message Definition**: Unified message structure (topic_id, timestamp, sequence_number, data_size, data)
-- **Data volume gradient**: 64B, 256B, 1KB, 4KB, 16KB, 64KB, 256KB, 1MB
-- **Number of iterations**: Accumulated statistics of 10,000 iterations for each data volume
-- **Indicator calculation**: message throughput, bandwidth throughput, average/minimum/maximum latency
+- **消息定义**：统一的消息结构（topic_id、timestamp、sequence_number、data_size、data）
+- **数据量梯度**：64B、256B、1KB、4KB、16KB、64KB、256KB、1MB
+- **迭代次数**：每个数据量累计统计10000次迭代
+- **指标计算**：消息吞吐量、带宽吞吐量、平均/最小/最大延时
 
-### 1. Message definition (message)
+### 1. 消息定义（message）
 
-The Topic message structure used in the test is as follows, and the field specifications are unified to ensure that the two middleware test benchmarks are consistent:
+测试使用的Topic消息结构如下，字段规范统一，确保两种中间件测试基准一致：
 
-| Field | Type | Description |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| topic_id | uint32 | Topic identifier, used to distinguish different test flows |
-| timestamp | uint64 | Send timestamp (nanosecond level), used to calculate RTT |
-| sequence_number | uint32 | Sequence number, used for packet loss detection |
-| data_size | uint32 | Data payload size (bytes) |
-| data | uint8[] | Actual data load, populated according to test configuration |
+| topic_id | uint32 | Topic标识，用于区分不同测试流 |
+| timestamp | uint64 | 发送时间戳(纳秒级)，用于计算RTT |
+| sequence_number | uint32 | 序列号，用于丢包检测 |
+| data_size | uint32 | 数据负载大小(字节) |
+| data | uint8[] | 实际数据负载，按测试配置填充 |
 
-&gt; Note: By configuring different data amounts, the communication load changes of the robot in different task scenarios are simulated.
+&gt; 备注：通过配置不同数据量，模拟机器人在不同任务场景下的通信负载变化。
 
-### 2. Test flow (test_flow)
+### 2. 测试流程（test_flow）
 
-Using the Ping-Pong mechanism, loaded as a module by the test framework:
+使用Ping-Pong机制，作为模块被测试框架加载：
 
-Build a two-way communication link to simulate the process of real-time data interaction between nodes in the robot system:
+构建双向通信链路，模拟机器人系统中**节点间实时数据交互**的过程：
 
-| Steps | Node A (publisher) | Node B (subscriber) | Function description |
+```mermaid
+flowchart LR
+  A["Node A: segar_node_a<br/>Writer: perf/a_to_b<br/>Reader: perf/b_to_a"]
+  B["Node B: segar_node_b<br/>Reader: perf/a_to_b<br/>Writer: perf/b_to_a"]
+  S["A侧统计器<br/>kIters=10000/档<br/>payload=64B~1MB"]
+
+  A -- "1) SendNext()<br/>写入 sequence/timestamp/data" --> B
+  B -- "2) 回调立即回包<br/>writer->Write(msg)" --> A
+  A -- "3) RTT=Now-last_send_ns<br/>记录lat_us" --> S
+  S -- "4) 未到10000次: 继续SendNext()" --> A
+  S -- "5) 到10000次: 输出TPS/吞吐/分位延时<br/>切换下一payload" --> A
+```
+
+> 对应代码：`segar_node_a.cc` 在收到回包后统计RTT并立即发送下一条；`segar_node_b.cc` 仅做原样回包，不引入额外业务处理。
+
+| 步骤 | 节点A(发布端) | 节点B(订阅端) | 功能描述 |
 |------|---------------|---------------|----------|
-| 1 | Generate messages and record timestamp | - | Initialize test data |
-| 2 | Send Topic to Node B | Receive Topic | Establish communication link |
-| 3 | Wait for response | Return original message immediately | Calculate round-trip latency |
-| 4 | Receive response and calculate RTT | - | Statistical performance indicators |
-| 5 | Send next message immediately | - | Continuous stress testing |
+| 1 | 生成消息并记录timestamp | - | 初始化测试数据 |
+| 2 | 发送Topic至节点B | 接收Topic | 建立通信链路 |
+| 3 | 等待响应 | 立即返回原消息 | 计算往返延时 |
+| 4 | 接收响应并计算RTT | - | 统计性能指标 |
+| 5 | 立即发送下一条消息 | - | 持续压力测试 |
 
-&gt; Note: Simulate the data flow process of sensor data upload and control command issuance in the robot system.
+&gt; 备注：模拟机器人系统中**传感器数据上传与控制指令下发**的数据流转过程
 
-### 3. Key parameter configuration (configuration)
+### 3. 关键参数配置（configuration）
 
-Use unified QoS and queue configuration:
+使用统一的QoS与队列配置：
 
-- **Service Node**: NodeB provides instant response services, simulating the **data relay and forwarding** scenario in the robot system.
-- **Client Node**: NodeA sends messages at the maximum frequency to verify the response capability and stability of the middleware under high concurrent requests.
+- **服务节点**：NodeB 提供 即时响应服务，模拟机器人系统中**数据中继与转发**场景。
+- **客户端节点**：NodeA 以最大频率发送消息，验证中间件在高并发请求下的响应能力与稳定性。
 
-&gt; Note: **High-frequency data exchange and real-time response** mechanism in the simulated robot system
+&gt; 备注：模拟机器人系统中**高频数据交换与实时响应**机制
 
-### 4. Metrics calculation method
+### 4. 指标计算方式（metrics）
 
-- **Message throughput (msg/s)** = number of test iterations / total time taken (seconds)
-- **Bandwidth Throughput (MB/s)** = (Amount of data in a single message × Number of iterations) / (1024 × 1024 × Total time taken (seconds))
-- **Average latency (us)** = sum of RTT of all iterations / number of iterations
-- **Minimum latency (us)** = minimum value of RTT among all iterations
-- **Maximum latency (us)** = Maximum value of RTT among all iterations
+- **消息吞吐量(msg/s)** = 测试迭代次数 / 总耗时(秒)
+- **带宽吞吐量(MB/s)** = (单条消息数据量 × 迭代次数) / (1024 × 1024 × 总耗时(秒))
+- **平均延时(us)** = 所有迭代RTT总和 / 迭代次数
+- **最小延时(us)** = 所有迭代RTT中的最小值
+- **最大延时(us)** = 所有迭代RTT中的最大值
 
-&gt; Note: **Quantitative evaluation mechanism of performance indicators** in the simulated robot system
+&gt; 备注：模拟机器人系统中**性能指标量化评估**机制
 
 ---
 
-## 4. Test results
+## 四、测试结果
 
-### Test Summary
+### 测试概要
 
-- **Test module**: Topic communication, throughput test, latency test
-- **Test environment**: x86_64 (28-core CPU), ubuntu22.04
+- **测试模块**：Topic通信、吞吐量测试、延时测试
+- **测试环境**：x86_64 (28核 CPU)，ubuntu22.04
 
-**Test conclusion**: ✅ Segar is in the lead (all indicators are better than ROS2)
+**测试结论**：✅ Segar全面领先（各项指标均优于ROS2）
 
-| Module | Test items | Segar results | ROS2 results | Comparison conclusion |
+| 模块 | 测试项 | Segar结果 | ROS2结果 | 对比结论 |
 |------|--------|-----------|----------|----------|
-| Throughput (1MB) | Message throughput | 1542.1 msg/s | 82.7 msg/s | ✅ Segar leads by 17.9 times |
-| Throughput (1MB) | Bandwidth throughput | 1542.13 MB/s | 82.67 MB/s | ✅ Segar leads 17.9 times |
-| Latency (1MB) | Average latency | 648.23 us | 12092.35 us | ✅ Segar reduced by 94.7% |
-| Latency (1MB) | Maximum latency | 1879.75 us | 45213.29 us | ✅ Segar reduced by 95.8% |
-| Stability | Maximum latency fluctuation | 168.15~1879.75 us | 229.68~45213.29 us | ✅ Segar fluctuation is extremely small |
+| 吞吐量(1MB) | 消息吞吐量 | 1542.1 msg/s | 82.7 msg/s | ✅ Segar领先17.9倍 |
+| 吞吐量(1MB) | 带宽吞吐量 | 1542.13 MB/s | 82.67 MB/s | ✅ Segar领先17.9倍 |
+| 延时(1MB) | 平均延时 | 648.23 us | 12092.35 us | ✅ Segar降低94.7% |
+| 延时(1MB) | 最大延时 | 1879.75 us | 45213.29 us | ✅ Segar降低95.8% |
+| 稳定性 | 最大延时波动 | 168.15~1879.75 us | 229.68~45213.29 us | ✅ Segar波动极小 |
 
-### Detailed analysis
+### 详细分析
 
-#### 1. Throughput test (Throughput)
+#### 1. 吞吐量测试（Throughput）
 
-**1MB extremely large data volume scenario:**
+**1MB超大数据量场景：**
 
-- ✅ Segar message throughput reaches **1542.1 msg/s**, which is **17.9 times** that of ROS2 (82.7 msg/s)
-- ✅ Segar bandwidth throughput reaches **1542.13 MB/s**, far exceeding ROS2’s 82.67 MB/s
-- ✅ Segar completely solves the pain points of ROS2 in the surge in serialization and memory copy overhead during large data transmission
+- ✅ Segar消息吞吐量达**1542.1 msg/s**，是ROS2（82.7 msg/s）的**17.9倍**
+- ✅ Segar带宽吞吐量达**1542.13 MB/s**，远超ROS2的82.67 MB/s
+- ✅ Segar彻底解决ROS2在大数据量传输中序列化、内存拷贝开销激增的痛点
 
-&gt; **Conclusion**: Segar shows overwhelming advantages in the scenario of extremely large data volume of 1MB, and perfectly adapts to the efficient transmission requirements of large payload data such as high-definition images and lidar point clouds.
+&gt; **结论**：Segar在1MB超大数据量场景下展现碾压式优势，完美适配高清图像、激光雷达点云等大payload数据的高效传输需求。
 
-**Interval robustness across the entire data volume:**| Data volume | Segar(msg/s) | ROS2(msg/s) | Status |
+**全数据量区间稳健性：**
+
+| 数据量 | Segar(msg/s) | ROS2(msg/s) | 状态 |
 |--------|--------------|-------------|------|
-| 64B | 36350.0 | 34452.6 | ✅ Segar is slightly better |
-| 256B | 36231.9 | 35523.5 | ✅ Segar is slightly better |
-| 1KB | 35342.3 | 34188.2 | ✅ Segar is slightly better |
-| 4KB | 33298.1 | 34188.2 | ⚠️ Quite |
-| 16KB | 28571.4 | 26368.0 | ✅ Segar leads by 8.4% |
-| 64KB | 16293.76 | 15310.1 | ✅ Segar leads by 6.4% |
-| 256KB | 6319.11 | 6285.30 | ✅ Both are equivalent |
-| 1MB | 1542.1 | 82.7 | ✅ Segar leads by 1764% |
+| 64B | 36350.0 | 34452.6 | ✅ Segar略优 |
+| 256B | 36231.9 | 35523.5 | ✅ Segar略优 |
+| 1KB | 35342.3 | 34188.2 | ✅ Segar略优 |
+| 4KB | 33298.1 | 34188.2 | ⚠️ 相当 |
+| 16KB | 28571.4 | 26368.0 | ✅ Segar领先8.4% |
+| 64KB | 16293.76 | 15310.1 | ✅ Segar领先6.4% |
+| 256KB | 6319.11 | 6285.30 | ✅ 两者相当 |
+| 1MB | 1542.1 | 82.7 | ✅ Segar领先1764% |
 
-&gt; **Conclusion**: Segar maintains a high throughput level (16293~36350 msg/s) in the entire range of 64B~256KB, without significant performance fluctuations; while ROS2’s throughput plummeted by 99% in the 1MB scenario, completely unable to meet the demand for large-capacity data transmission.
+&gt; **结论**：Segar在64B~256KB全区间保持高吞吐量水平（16293~36350 msg/s），无显著性能波动；而ROS2在1MB场景下吞吐量暴跌99%，完全无法满足大容量数据传输需求。
 
-#### 2. Latency test (Latency)
+#### 2. 延时测试（Latency）
 
-**1MB large data volume latency control:**
+**1MB超大数据量延时控制：**
 
-- ✅ The average latency of Segar is only **648.23 us**, which is **94.7%** lower than ROS2 (12092.35 us)
-- ✅ The maximum latency of Segar is only **1879.75 us**, which is **95.8%** lower than ROS2 (45213.29 us)
-- ✅ Segar solves the fatal problem of latencyed explosive growth of ROS2 under extremely large amounts of data
+- ✅ Segar平均延时仅**648.23 us**，较ROS2（12092.35 us）降低**94.7%**
+- ✅ Segar最大延时仅**1879.75 us**，较ROS2（45213.29 us）降低**95.8%**
+- ✅ Segar解决了ROS2在超大数据量下延时爆发式增长的致命问题
 
-&gt; **Conclusion**: With its better architectural design, Segar avoids the latencyed linear growth trap of traditional DDS solutions and meets the real-time perception and decision-making needs of robots.
+&gt; **结论**：Segar凭借更优的架构设计，避免了传统DDS方案的延迟线性增长陷阱，满足机器人实时感知与决策需求。
 
-**Full range latency stability:**
+**全区间延时稳定性：**
 
-| Data volume | Segar average latency | ROS2 average latency | Segar maximum latency | ROS2 maximum latency |
+| 数据量 | Segar平均延时 | ROS2平均延时 | Segar最大延时 | ROS2最大延时 |
 |--------|---------------|--------------|---------------|--------------|
 | 64B | 27.43 us | 29.03 us | 168.15 us | 229.68 us |
 | 256B | 27.59 us | 27.16 us | 168.85 us | 229.97 us |
@@ -156,39 +173,39 @@ Use unified QoS and queue configuration:
 | 256KB | 158.25 us | 159.11 us | 631.05 us | 724.57 us |
 | 1MB | 648.23 us | 12092.35 us | 1879.75 us | 45213.29 us |
 
-&gt; **Conclusion**: The maximum latency fluctuation range of Segar is only 168.15~1879.75 us, which can remain stable even in extreme scenarios; while the maximum latency span of ROS2 is 229.68~45213.29 us. The maximum latency in the 1MB scenario is 24 times that of Segar, and there is a serious risk of peak latency.
+&gt; **结论**：Segar最大延时波动范围仅168.15~1879.75 us，即使在极端场景下也能保持稳定；而ROS2最大延时跨度达229.68~45213.29 us，1MB场景下最大延时是Segar的24倍，存在严重的峰值延时风险。
 
-#### 3. Delay scalability analysis (Scalability)
+#### 3. 延时扩展性分析（Scalability）
 
-- ✅ **Segar**: The average latency increases **gently and linearly** with the growth of data volume, from 27.43 us for 64B to 648.23 us for 1MB. The growth rate is controllable (about 23 times)
-- ❌ **ROS2**: In the 1MB scenario, the latency explodes **exponentially**, from 29.03 us at 64B to 12092.35 us at 1MB, an increase of 416 times
+- ✅ **Segar**：平均延时随数据量增长呈**平缓线性上升**，从64B的27.43 us增至1MB的648.23 us，增长幅度可控（约23倍）
+- ❌ **ROS2**：在1MB场景下延时呈**指数级爆发**，从64B的29.03 us增至1MB的12092.35 us，增长达416倍
 
-&gt; **Conclusion**: Segar's latency scalability is industry-leading, fully exposing the fatal flaws of the ROS2 architecture in large data volume scenarios.
+&gt; **结论**：Segar的延时可扩展性行业领先，充分暴露ROS2架构在大数据量场景下的致命缺陷。
 
-#### 4. Comprehensive performance comparison (Comparison)
+#### 4. 综合性能对比（Comparison）
 
-| Comparison Dimensions | Segar | ROS2 | Conclusion |
+| 对比维度 | Segar | ROS2 | 结论 |
 |----------|-------|------|------|
-| Large data throughput | ✅ 1542.1 msg/s | ❌ 82.7 msg/s | Segar leads 17.9 times |
-| Large data volume latency | ✅ 648.23 us | ❌ 12092.35 us | Segar reduced by 94.7% |
-| Delay stability | ✅ Fluctuation <2ms | ❌ Peak value >45ms | Segar is more stable |
-| Latency scalability | ✅ Linear growth | ❌ Exponential growth | Segar scalable |
-| Small data volume performance | ✅ Equal or slightly better | ⚠️ Equivalent | Close to both |
-| Full range robustness | ✅ No performance shortcomings | ❌ 1MB crash | Segar is more robust |
+| 大数据量吞吐 | ✅ 1542.1 msg/s | ❌ 82.7 msg/s | Segar领先17.9倍 |
+| 大数据量延时 | ✅ 648.23 us | ❌ 12092.35 us | Segar降低94.7% |
+| 延时稳定性 | ✅ 波动&lt;2ms | ❌ 峰值&gt;45ms | Segar更稳定 |
+| 延时扩展性 | ✅ 线性增长 | ❌ 指数增长 | Segar可扩展 |
+| 小数据量性能 | ✅ 持平或略优 | ⚠️ 相当 | 两者接近 |
+| 全区间稳健性 | ✅ 无性能短板 | ❌ 1MB崩溃 | Segar更稳健 |
 
-&gt; **Conclusion**: Segar has achieved comprehensive surpasses in the three core indicators of throughput, latency, and stability. Only when the data volume is 4KB, the throughput is slightly lower than ROS2 (the gap is about 2.6%), which can be ignored in practical applications.
+&gt; **结论**：Segar在吞吐量、延时、稳定性三大核心指标上实现全面超越，仅在4KB数据量时吞吐量略低于ROS2（差距约2.6%），实际应用中可忽略不计。
 
 ---
 
-## Test conclusion
+## 测试结论
 
-Segar middleware performs well on the Orin platform and has significant advantages over ROS2:
+Segar中间件在Orin平台上表现优异，相比ROS2具有显著优势：
 
-1. **Advantage over large amounts of data**: In the 1MB scenario, the throughput is **17.9 times** that of ROS2, and the latency is reduced by **94.7%**, completely solving the problem of performance collapse of ROS2's large data transmission performance
-2. **Robust performance in the entire range**: Maintaining high throughput (>16000 msg/s) in the entire range of 64B~256KB, no significant performance fluctuations, and no performance shortcomings
-3. **Extreme latency stability**: The maximum latency fluctuation is <2ms, while the peak latency of ROS2 reaches 45ms in the 1MB scenario, which poses serious real-time risks.
-4. **Leading scalability**: Latency increases linearly with the amount of data, and the growth rate is controllable (23 times), while ROS2 explodes exponentially (416 times)
-5. **Wide scene adaptation**: It can not only meet the high-frequency transmission of small data volumes (such as control instructions), but also stably support the low-latency transmission of large data volumes (such as point clouds and images)
+1. **超大数据量碾压优势**：1MB场景下吞吐量是ROS2的**17.9倍**，延时降低**94.7%**，彻底解决ROS2大数据量传输性能崩溃问题
+2. **全区间性能稳健**：64B~256KB全区间保持高吞吐量（&gt;16000 msg/s），无显著性能波动，无性能短板
+3. **延时稳定性极致**：最大延时波动&lt;2ms，而ROS2在1MB场景下峰值延时达45ms，存在严重实时性风险
+4. **可扩展性领先**：延时随数据量呈线性增长，增长幅度可控（23倍），而ROS2呈指数级爆发（416倍）
+5. **场景适配广泛**：既能满足小数据量高频传输（如控制指令），又能稳定支撑大数据量低延时传输（如点云、图像）
 
 
 ---

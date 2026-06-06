@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package param.example;
+
+message Header {
+  optional double timestamp_sec = 1;
+  optional string module_name = 2;
+  optional uint32 sequence_num = 3;
+  optional uint32 version = 4 [default = 1];
+  optional uint64 TempTest = 6;
+}

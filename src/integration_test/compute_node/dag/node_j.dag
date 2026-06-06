@@ -1,0 +1,15 @@
+module_config {
+    module_library : "lib/libnode_j_component.so"
+    components {
+        component_class_name : "NodeJComponent"
+        config {
+            inner_node_name : "node_j"
+            readers {
+                topic: "NodeE"
+            }
+            readers {
+                topic: "NodeI"
+            }
+        }
+    }
+}

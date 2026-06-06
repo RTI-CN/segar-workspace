@@ -1,0 +1,4 @@
+integration_test/action/DemoAction.action
+integration_test/action/PerfAction.action
+integration_test/msg/IntegrationTestData.msg
+integration_test/srv/PerfData.srv

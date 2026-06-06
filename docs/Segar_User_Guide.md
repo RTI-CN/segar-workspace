@@ -1,50 +1,82 @@
-# Segar User Manual
+# ![Project Logo](./segar_logo.jpg)Segar User Guide
 
-## Introduction
+## 简介
 
-- Segar is an open robotics operating system for the entire industry. It is compatible with mainstream software and hardware ecosystems. Through an integrated toolchain and extreme engineering capabilities, it helps teams quickly build business flow and closed-loop data workflows to reduce delivery cycles, operations costs, and complexity.
-- Segar integrates features such as deterministic scheduling, automatic message synchronization, built-in alert interfaces, and unified QoS management. It pursues high performance in throughput, latency, jitter, and resource usage, provides integrated toolchains such as launch, monitor, recorder, and tracing, and supports mainstream third-party ecological tools in the industry.
+- Segar 是追求极致可用性的机器人操作系统，它兼容主流软硬件生态，通过一体化工具链和极致的工程化能力，帮助团队快速构建业务流与数据闭环，以降低交付周期、运维成本和复杂度。
+- Segar 集成了协程确定优先级调度、消息自动同步、内生告警接口、统一Qos管理、仿真时间、统一IO等特性，在吞吐、时延、抖动和资源占用上追求极致表现，提供 launch、monitor、recorder、tracing 等一体化工具链，并支持行业主流的三方生态工具。
 
-## Basic communication paradigm
+## 系统概览
 
-- [Getting started with Topic](Segar_Topic.md) - Publish and subscribe, Writer/Reader, .msg type
-- [Getting Started with Service](Segar_Service.md) - Request response, Server/Client, .srv type
-- [Getting started with Action](Segar_Action.md) - long-term tasks, ActionServer/ActionClient, .action type
-- [SegarHeader automatic injection configuration](Segar_SegarHeader.md) - Automatically add header fields through `type_src/transport_messages` configuration
-- [Getting started with Parameter](Segar_Parameter.md) - Local/remote parameters, parameter configuration and API
+- [Segar History And Current State](Segar_History_And_Current_State.md) —— Segar的过去与现在
 
-## Programming framework
+## 名词概念
 
-- [Getting Started with Component](Segar_Component.md) - Component-based development, timing-triggered Component, message-triggered Component
+- [Segar Terms](Segar_Terms.md) —— 常见术语速查
 
-## Task scheduling framework
+## 快速开始
 
-- [Getting started with Scheduler](Segar_Scheduler.md) - Task scheduling, coroutines, asynchronous execution
+- [Quick Start](Segar_Quick_Start.md) —— 第一个组件示例、构建与运行闭环
+- [Segar Engineering](Segar_Engineering.md) —— 先了解 workspace 目录结构、文件放置位置、部署目录和运行方式
 
-## Toolchain
+## 基本通信范式
 
-- [Getting started with Segar CLI](Segar_Cli.md) —— node / topic / service / action / param / bag subcommand
-- [Compatible with ROS2 ecological tools](Segar_Ros2_Compatible.md) —— ROS 2 ecological compatibility and bridging
-- [Broadcast bag recording tool] (Segar_Recorder.md) —— bag recording and playback
-- [Tracing Tool](Segar_Tracing.md) - Tracing and Diagnosis
+- [Segar Topic](Segar_Topic.md) —— 发布订阅、Writer/Reader、`.msg` 类型
+- [Segar Service](Segar_Service.md) —— 请求响应、Server/Client、`.srv` 类型
+- [Segar Action](Segar_Action.md) —— 长时任务、ActionServer/ActionClient、`.action` 类型
+- [Segar Parameter](Segar_Parameter.md) —— 本地/远程参数、参数配置与 API
 
-## Example description
+## 编程框架
 
-- [Usage Examples](Segar_Examples.md) - Overview of examples such as topic, service, param, action, component, concurrent, etc.
-- [Engineering and Deployment Instructions](Segar_Engineering.md) - Type definition, dependency management, link configuration, deployment and operation methods
+- [Segar Component](Segar_Component.md) —— 组件化开发、定时触发 Component、消息触发 Component
+- [Segar Lifecycle](Segar_Lifecycle.md) —— Node / Component 的激活与非激活控制
 
-## Application integration
-- [Integrate multiple local applications](Segar_launch_tutorial.md) - Use launch scripts to manage and integrate local references
+## 任务调度框架
 
-## API Reference
+- [Segar Scheduler](Segar_Scheduler.md) —— 任务调度、协程、异步执行
 
-- [API Reference Manual](Segar_Api_Reference.md) - Segar API list organized by category
+## 并发与用户自定义 Task
 
-## Test report
+- [Segar Concurrent And User-Defined Tasks](Segar_Concurrent_And_User_Defined_Tasks.md) —— `Async`、`CreateTask`、`WaitEvent`、`ReYield` 与协程兼容等待/唤醒
 
-- [Functional Test Report](test_reports/Functional_Test_Report.md) —— Segar functional test report
-- [Integration Test Report](test_reports/Integration_Test_Report.md) —— Segar integration test report (cpu pressure to 80%)
-- Performance comparison test with ROS2
-    - [Topic performance comparison](test_reports/Segar_vs_Ros2_Topic_Test.md) —— Segar vs Ros2 Topic performance comparison test report
-    - [Service performance comparison](test_reports/Segar_vs_Ros2_Service_Test.md) —— Segar vs Ros2 Service performance comparison test report
-    - [Action performance comparison](test_reports/Segar_vs_Ros2_Action_Test.md) —— Segar vs Ros2 Action performance comparison test report
+## 时间与定时器
+
+- [Segar Time And Timer](Segar_Time_And_Timer.md) —— `Time`、`SleepUntil`、`MonoTime`、`Timer` 与周期任务
+
+## 应用集成
+
+- [Segar Launch](Segar_Launch.md) —— 使用 launch 文件管理与集成本地应用
+
+## 工具链
+
+- [Segar Tracing](Segar_Tracing.md) —— 追踪与诊断
+- [SegarHeader Configuration](Segar_SegarHeader.md) —— 通过 `type_src/transport_messages` 配置自动添加头字段
+- [仿真与数采支持](Segar_Sim_And_Data_Aacquisition.md) —— segar针对仿真和数采提供的接口
+- [Segar CLI](Segar_Cli.md) —— `node` / `topic` / `service` / `action` / `param` / `bag` 子命令
+- [Segar Bag](Segar_Recorder.md) —— bag 录制与回放
+- [Segar ROS 2 Compatibility](Segar_Ros2_Compatible.md) —— ROS 2 生态兼容与桥接
+- [Segar Log](Segar_Log.md) —— 日志宏、日志目录、环境变量与排查入口
+
+## 使用示例说明
+
+- [Segar Examples](Segar_Examples.md) —— topic、service、param、action、component、concurrent 等示例概览
+
+## 集成测试
+
+- [Segar Integration Test](Segar_Integration_Test.md) —— 集成测试模块构建、运行与结果说明
+
+## 三方库适配
+
+- [Segar Transform](Segar_Transform.md) —— TF 发布与查询、TransformBroadcaster/Buffer
+
+## API 参考
+
+- [Segar API Reference](Segar_Api_Reference.md) —— 按分类整理的 Segar API 列表
+
+## 测试报告
+
+- [功能测试报告](test_reports/Functional_Test_Report.md) —— Segar 功能测试报告
+- [集成测试报告](test_reports/Integration_Test_Report.md) —— Segar 集成测试报告(cpu加压至80%)
+- 与ROS2性能对比测试
+  - [Topic性能对比](test_reports/Segar_vs_Ros2_Topic_Test.md) —— Segar vs Ros2 Topic 性能对比测试报告
+  - [Service性能对比](test_reports/Segar_vs_Ros2_Service_Test.md) —— Segar vs Ros2 Service 性能对比测试报告
+  - [Action性能对比](test_reports/Segar_vs_Ros2_Action_Test.md) —— Segar vs Ros2 Action 性能对比测试报告

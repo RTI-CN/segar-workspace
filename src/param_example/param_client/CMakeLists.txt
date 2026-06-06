@@ -1,2 +1,5 @@
 add_example(param_client src/param_client.cc)
-target_link_libraries(param_client PRIVATE param_example_proto)
+target_link_libraries(param_client PRIVATE ${GENERATED_PROTO_OBJ_LIB} )
+if(TARGET ${GENERATED_PROTO_OBJ_LIB})
+    add_dependencies(param_client ${GENERATED_PROTO_OBJ_LIB})
+endif()

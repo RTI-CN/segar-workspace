@@ -1,0 +1,8 @@
+common_component_example:
+  segar__parameters:
+    p1_int: 1
+    p2_string: test
+    p_bool_array: [true, false]
+    p_double_array: [1.5, 2.5]
+    p_int_array: [1, 2, 3]
+    p_string_array: [foo, bar]

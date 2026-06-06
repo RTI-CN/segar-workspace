@@ -1,0 +1,10 @@
+module_config {
+    module_library : "lib/libparam_timer_component.so"
+    timer_components {
+        component_class_name : "ParamTimerComponent"
+        config {
+            inner_node_name : "param_timer"
+            interval : 1000
+        }
+    }
+}

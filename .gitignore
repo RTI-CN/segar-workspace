@@ -25,3 +25,5 @@ log/*
 !build_x86.sh
 !build_pkg.sh
 !scripts/*.sh
+conanfile.py
+create.sh

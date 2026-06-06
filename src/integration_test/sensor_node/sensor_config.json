@@ -1,0 +1,109 @@
+{
+    "sensors": [
+        {
+            "id": 1,
+            "name": "sensor1",
+            "topic": "sensor_topic_1",
+            "frequency": 20,
+            "data_size_kb": 4
+        },
+        {
+            "id": 2,
+            "name": "sensor2",
+            "topic": "sensor_topic_2",
+            "frequency": 100,
+            "data_size_kb": 4
+        },
+        {
+            "id": 3,
+            "name": "sensor3",
+            "topic": "sensor_topic_3",
+            "frequency": 50,
+            "data_size_kb": 16
+        },
+        {
+            "id": 4,
+            "name": "sensor4",
+            "topic": "sensor_topic_4",
+            "frequency": 20,
+            "data_size_kb": 16
+        },
+        {
+            "id": 5,
+            "name": "sensor5",
+            "topic": "sensor_topic_5",
+            "frequency": 20,
+            "data_size_kb": 64
+        },
+        {
+            "id": 6,
+            "name": "sensor6",
+            "topic": "sensor_topic_6",
+            "frequency": 20,
+            "data_size_kb": 256
+        },
+        {
+            "id": 7,
+            "name": "sensor7",
+            "topic": "sensor_topic_7",
+            "frequency": 20,
+            "data_size_kb": 256
+        },
+        {
+            "id": 8,
+            "name": "sensor8",
+            "topic": "sensor_topic_8",
+            "frequency": 20,
+            "data_size_kb": 256
+        },
+        {
+            "id": 9,
+            "name": "sensor9",
+            "topic": "sensor_topic_9",
+            "frequency": 20,
+            "data_size_kb": 512
+        },
+        {
+            "id": 10,
+            "name": "sensor10",
+            "topic": "sensor_topic_10",
+            "frequency": 10,
+            "data_size_kb": 1024
+        },
+        {
+            "id": 11,
+            "name": "sensor11",
+            "topic": "sensor_topic_11",
+            "frequency": 15,
+            "data_size_kb": 1024
+        },
+        {
+            "id": 12,
+            "name": "sensor12",
+            "topic": "sensor_topic_12",
+            "frequency": 15,
+            "data_size_kb": 1024
+        },
+        {
+            "id": 13,
+            "name": "sensor13",
+            "topic": "sensor_topic_13",
+            "frequency": 15,
+            "data_size_kb": 1024
+        },
+        {
+            "id": 14,
+            "name": "sensor14",
+            "topic": "sensor_topic_14",
+            "frequency": 15,
+            "data_size_kb": 1024
+        },
+        {
+            "id": 15,
+            "name": "sensor15",
+            "topic": "sensor_topic_15",
+            "frequency": 15,
+            "data_size_kb": 1024
+        }
+    ]
+}

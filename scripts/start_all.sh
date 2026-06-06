@@ -34,6 +34,10 @@ mkdir -p "$LOG_DIR"
 LAUNCH_LIST=(
   "topic_example/topic_talker/scripts/launch.sh"
   "topic_example/topic_listener/scripts/launch.sh"
+  "transform_example/transform_broadcaster/scripts/launch.sh"
+  "transform_example/transform_static_broadcaster/scripts/launch.sh"
+  "transform_example/transform_listener/scripts/launch.sh"
+  "transform_example/transform_static_listener/scripts/launch.sh"
   "service_example/service_server/scripts/launch.sh"
   "service_example/service_client_sync/scripts/launch.sh"
   "service_example/service_client_async/scripts/launch.sh"
@@ -45,7 +49,8 @@ LAUNCH_LIST=(
   "component_example/timer_component/scripts/launch.sh"
   "component_example/common_component/scripts/launch.sh"
   "component_example/sync_component/scripts/launch.sh"
-  "concurrent_example/tasker/scripts/launch.sh"
+  "concurrent_example/wait_event_talker/scripts/launch.sh"
+  "concurrent_example/wait_event_listener/scripts/launch.sh"
 )
 
 PIDS=()

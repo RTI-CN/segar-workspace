@@ -1,0 +1,2 @@
+add_subdirectory(type_coverage_talker)
+add_subdirectory(type_coverage_listener)
